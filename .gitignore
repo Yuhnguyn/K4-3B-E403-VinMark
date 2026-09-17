@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+__pycache__/
+.env
+.env.*
+!.env.example
+
+# Course datasets and derived private data: never publish with the submission.
+/data/local/
