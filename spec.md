@@ -31,10 +31,10 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
     - Không build chức năng lưu trữ toàn bộ lịch sử chat như “notebook cá nhân” để thả hết mọi câu hỏi/đáp vào một kho, mà không phân loại theo slide hay bài học.
     - Không build tính năng chốt điểm/đánh giá học viên theo tự động hoá hoàn toàn; mục tiêu là hỗ trợ ôn tập chứ không thay thế giảng viên hoặc đánh giá chính thức.
     - Không build một bot “nhắc nhở liên tục” mà không có sự đồng ý của người học; nhắc lại chỉ xảy ra khi học viên đã xác nhận nội dung cần ôn hoặc đã đánh dấu slide/chỗ chưa hiểu.
-- Mức prototype nhắm tới: [ ] Sketch [x] Mock [ ] Working — phần nào mock, phần nào thật:
-  - Mock: toàn bộ trải nghiệm người dùng, flow sinh quiz, quyết định có đủ ngữ cảnh hay không, và nhắc lại ôn tập đều được mô phỏng với mock data.
-  - Mock: UI nhắc nhở, kho quiz, và giao diện đánh dấu slide/chỗ chưa hiểu là mock theo mô hình tương tác thiết kế.
-  - Thật: dữ liệu mining, pain point và các ví dụ người dùng từ khảo sát thực tế được dùng để làm căn cứ cho thiết kế, nhưng chưa có AI thật được tích hợp chạy trong sản phẩm này.
+- Mức prototype nhắm tới: [x] Sketch [ ] Mock [ ] Working — phần nào mock, phần nào thật:
+  - Sketch workflow: toàn bộ trải nghiệm người dùng được mô phỏng dạng sơ đồ luồng, từ “học viên gặp chỗ chưa hiểu” → “AI kiểm tra ngữ cảnh” → “sinh quiz/nói rõ khi thiếu căn cứ” → “nhắc ôn lại sau 1/3 ngày”.
+  - Sketch: giao diện và các nhánh quyết định được vẽ ở mức concept, không phải mock UI hoàn chỉnh hay product flow chạy thật.
+  - Thật: dữ liệu mining, pain point và các ví dụ người dùng từ khảo sát/log thực tế được dùng để làm căn cứ thiết kế, nhưng chưa có AI thật được tích hợp chạy trong sản phẩm này.
 - Automation: [ ] augment [x] conditional [ ] automate — lý do theo cost-of-error:
   - Chọn “conditional” vì AI chỉ làm việc khi có đủ ngữ cảnh và mức tự tin cao; nếu thiếu thông tin, AI không sinh quiz mà yêu cầu người dùng bổ sung hoặc chuyển sang gợi ý khác.
   - Cost-of-error ở đây là trung bình–cao: nếu AI sinh quiz sai do không đủ ngữ cảnh, học viên sẽ ôn sai chỗ và tăng hiểu nhầm, làm mất niềm tin. Do đó, hệ thống phải có “abstain” rõ ràng: không tạo quiz khi thiếu căn cứ, thay vì “đẩy” quiz sai.
