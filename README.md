@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 📌 VinMark
 
 > **Biến những chỗ chưa hiểu thành quiz ôn tập — đúng lúc, đúng chỗ.**
@@ -75,15 +74,7 @@ Những người dùng ngoài nhóm đã được hỏi và đồng ý dùng th�
 
 ---
 
-## 📂 Tài liệu
-
-- [canvas.md](canvas.md) — Canvas đề tài
-=======
-# VinMark
-
-VinMark giúp học viên lưu lại chỗ chưa hiểu, mở đúng nguồn và ôn bằng quiz có citation.
-
-## Chạy nhanh
+## 🚀 Chạy prototype
 
 Từ thư mục gốc:
 
@@ -104,7 +95,7 @@ Provider được hỗ trợ:
 | NVIDIA NIM | `NVIDIA_NIM_API_KEY` | tự chọn model khả dụng |
 | Gemini | `GEMINI_API_KEY` | `gemini-3.6-flash` |
 
-Chọn provider bằng `LLM_PROVIDER=deepseek`, `nim` hoặc `gemini`.
+Chọn provider bằng `LLM_PROVIDER=deepseek`, `nim` hoặc `gemini`. Dùng OpenAI: đặt `LLM_PROVIDER=deepseek`, `DEEPSEEK_BASE_URL=https://api.openai.com/v1`, `DEEPSEEK_API_KEY=<key OpenAI>`, `DEEPSEEK_MODEL=gpt-4o-mini`.
 
 Không có API key, chỉ chạy fixture demo khi bật rõ:
 
@@ -113,36 +104,42 @@ $env:VINMARK_DEMO_MODE = "true"
 node server/server.js
 ```
 
-## Kiểm thử
+### Kiểm thử
 
 ```powershell
 node server/quiz-contract.test.js
 node server/gemini.test.js
 node server/nim.test.js
 node server/deepseek.test.js
-node eval/run-round1.cjs
+node eval/run-eval.cjs --check   # kiểm tra golden set, không gọi model
+node eval/run-eval.cjs round1
 ```
 
-Eval gồm 20 case: 10 thường, 8 khó và 2 hiếm. Kết quả/trace nằm trong `eval/`. Lượt hiện tại đạt `14/20`; đây là kết quả thật, chưa đạt quality bar đề xuất `18/20`.
+Eval: `node eval/run-eval.cjs round1` chạy 26 case trong [eval/golden_set.csv](eval/golden_set.csv) (10 thường, 13 khó theo 4 lớp, 3 hiếm; 24 case từ chatlog) qua module quyết định thật. Lượt 1: **19/26 (73,1%)**, chưa đạt quality bar ≥90%. Phân tích lỗi: [eval/results_round1.md](eval/results_round1.md).
 
-## Cấu trúc
+### Cấu trúc
 
 - `mockup/`: giao diện HTML/CSS/JS và browser smoke test
-- `server/`: API, provider adapters, source allowlist và validators
-- `eval/`: golden set, runner, kết quả và trace
+- `codebase/`: module quyết định trung tâm (ready / needs_context / out_of_scope), gọi model và ghi vết prompt + phản hồi thô vào `logs/`
+- `server/`: API, AI tutor, provider adapters, source allowlist
+- `eval/`: golden set, User Input Grid, runner, kết quả, trace và phiếu chấm độc lập
 - `spec.md`: product spec và trạng thái triển khai
 - `SHOWCASE_SPEC.md`: contract showcase và acceptance criteria
 - `CANVAS.md`: canvas nhóm
 - `WORKFLOW.html`: sơ đồ workflow
 
-## Phạm vi hiện tại
+### Phạm vi hiện tại
 
 - Quiz AI chọn 3–10 câu, mỗi câu có 4 lựa chọn, đáp án, giải thích và nguồn.
-- Nguồn hiện là manifest cục bộ đã curate; dữ liệu course chưa tích hợp trực tiếp vào VLearn.
-- Tutor, đăng nhập, đồng bộ, email/push và chấm điểm chính thức chưa nằm trong phạm vi.
+- Nguồn quiz là slide Day 1/Day 2 bản hackathon, xác định theo trang, cùng một đoạn transcript đã curate; các buổi khác vẫn là dữ liệu demo.
+- AI tutor trả lời dựa trên slide đang mở; hội thoại được lưu vào Luyện tập và tạo quiz một lần.
+- Đăng nhập, đồng bộ, email/push và chấm điểm chính thức chưa nằm trong phạm vi.
 - Không commit API key hoặc data pack vào repository.
 
-## Team
+---
 
-Tên đầy đủ và mã học viên thành viên chưa được cung cấp trong repo.
->>>>>>> 133970b04ee29c31a6864a4494414b20913542cb
+## 📂 Tài liệu
+
+- [canvas.md](canvas.md) — Canvas đề tài
+- [spec.md](spec.md) — Product spec
+- [codebase/README.md](codebase/README.md) — Module quyết định và ghi vết

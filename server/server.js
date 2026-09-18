@@ -45,7 +45,6 @@ function sourceFor(ref) {
   return SOURCES.find(source => source.sourceId === sourceId) || null;
 }
 
-<<<<<<< HEAD
 // Slide + tutor conversation sent by the client for items saved from chat.
 // It is not a curated source, so allowlisted sources always take precedence.
 function inlineSourceFor(request) {
@@ -62,12 +61,12 @@ function inlineSourceFor(request) {
 
 function providerKeyName() {
   return keyEnvFor((process.env.LLM_PROVIDER || 'gemini').toLowerCase());
-=======
+}
+
 function vlearnSlidesFor(day) {
   const file = VLEARN_SLIDE_FILES[day];
   if (!file || !fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, 'utf8'));
->>>>>>> 4ac626809382a9dfa0209dd0b73280f74ca07e16
 }
 
 function chooseQuestionCount(source, previousAttempt) {
