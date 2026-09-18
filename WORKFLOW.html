@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VinMark — Workflow showcase</title>
+  <style>
+    :root { color-scheme: light; --ink:#16324b; --muted:#546b7c; --blue:#1463a3; --line:#cbdbe6; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f3f7fb; color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1120px; margin:auto; padding:40px 24px; }
+    .eyebrow { color:var(--blue); font-size:12px; font-weight:800; letter-spacing:2px; }
+    h1 { font-size:clamp(28px,4vw,44px); letter-spacing:-1px; line-height:1.2; margin:10px 0; }
+    .intro { color:var(--muted); margin:0 0 28px; }
+    .layout { display:grid; grid-template-columns:minmax(0,2fr) minmax(250px,1fr); gap:28px; align-items:start; }
+    .flow, .panel { background:white; border:1px solid var(--line); border-radius:18px; padding:24px; }
+    .node { border:1px solid var(--line); border-radius:12px; padding:14px 18px; background:#fff; }
+    .node strong { display:block; font-size:17px; }
+    .node p { margin:5px 0 0; font-size:14px; color:var(--muted); }
+    .step { float:left; width:28px; height:28px; display:grid; place-items:center; margin:0 10px 0 0; background:#e4f0fa; color:var(--blue); border-radius:50%; font-size:13px; font-weight:800; }
+    .arrow { text-align:center; color:#6e879a; font-size:24px; line-height:1.5; }
+    .blue { background:#eef6ff; border-color:#a5c9e7; }
+    .amber { background:#fff9ec; border-color:#e9cb87; }
+    .green { background:#eef9f3; border-color:#a5d1b8; }
+    .branches { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .branches .node { padding:13px; }
+    .tag { display:block; font-weight:800; font-size:11px; letter-spacing:1px; color:var(--blue); margin-bottom:6px; }
+    .amber .tag { color:#896011; }
+    .green .tag { color:#237344; }
+    .return { font-size:13px; font-weight:650; margin-top:10px; color:var(--blue); }
+    .caption { font-size:12px; color:var(--muted); margin:12px 0 0; }
+    aside { display:grid; gap:18px; }
+    .panel { padding:20px; }
+    h2 { font-size:18px; margin:0 0 12px; }
+    .rule { padding:12px 0; border-top:1px solid #e7eef4; font-size:14px; }
+    .rule:first-of-type { border-top:0; padding-top:0; }
+    .rule strong { display:block; margin-bottom:3px; }
+    .rule span { color:var(--muted); }
+    .team { display:grid; gap:10px; }
+    .person { padding:12px; background:#f5f8fb; border-radius:10px; font-size:13px; }
+    .person b { display:block; font-size:14px; }
+    footer { margin-top:24px; color:var(--muted); font-size:13px; }
+    a { color:var(--blue); }
+    @media(max-width:800px) { .layout { grid-template-columns:1fr; } main { padding:24px 14px; } .flow { padding:16px; } }
+    @media(max-width:440px) { .branches { grid-template-columns:1fr; } }
+    @media print { body { background:white; font-size:12px; } main { padding:0; } .layout { grid-template-columns:2fr 1fr; gap:14px; } .flow,.panel { padding:12px; } .node { padding:9px; } .node p,.rule { font-size:11px; } .node strong { font-size:13px; } .arrow { font-size:18px; } .panel,.node { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">VINMARK · TRACK A2 · SHOWCASE WORKFLOW</div>
+    <h1>Từ chỗ chưa hiểu đến ôn tập có căn cứ</h1>
+    <p class="intro">Lưu đúng nguồn. Kiểm tra đúng nội dung. Biết cần ôn gì tiếp.</p>
+  </header>
+  <div class="layout">
+    <section class="flow" aria-label="Luồng học viên">
+      <div class="node"><span class="step">1</span><strong>Hỏi Tutor / đánh dấu slide</strong><p>Lưu câu hỏi, đoạn nguồn, buổi học và thời điểm.</p></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node"><span class="step">2</span><strong>Mở mục trong Luyện tập</strong><p>Cùng vị trí nguồn → cùng mục. Xem câu hỏi, tóm tắt và mở đúng slide/đoạn transcript.</p></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node blue"><span class="step">3</span><strong>Bấm Làm quiz</strong><p>Chọn bộ phù hợp với nội dung hiện tại.</p></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="branches">
+        <div class="node"><span class="tag">ĐÃ CÓ BỘ HỢP LỆ</span><strong>Dùng lại quiz</strong><p>Cùng phiên bản nội dung; gồm cả làm lại bộ đã đạt.</p><div class="return">↓ Sang bước 4</div></div>
+        <div class="node blue"><span class="tag">LẦN ĐẦU / NỘI DUNG MỚI / ÔN LẠI</span><strong>AI chuẩn bị quiz</strong><p>Kiểm tra nguồn → chọn 3–10 câu có giải thích và dẫn nguồn.</p><div class="return">↓ Hợp lệ: sang bước 4</div></div>
+      </div>
+      <div class="node amber" style="margin-top:12px"><span class="tag">NẾU CHƯA ĐỦ CĂN CỨ</span><strong>Dừng tạo quiz, giữ mục ôn</strong><p>Nêu phần còn thiếu → học viên làm rõ câu hỏi hoặc chọn nguồn phù hợp.</p><div class="return">↳ Quay về bước 3 khi đã bổ sung</div></div>
+      <div class="arrow" aria-hidden="true">↓ <small style="font-size:12px">Chỉ tiếp tục khi có quiz hợp lệ</small></div>
+      <div class="node"><span class="step">4</span><strong>Làm bài → nộp → xem kết quả</strong><p>Luyện tập, không tính điểm khóa học. Sau khi nộp mới hiện đáp án, giải thích và nguồn.</p></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="branches">
+        <div class="node green"><span class="tag">ĐỀ XUẤT: ĐẠT ≥80%</span><strong>Đã ôn đạt</strong><p>Ngưỡng tối thiểu là ceil(80% × tổng số câu). Dừng nhắc cho mục này. Giữ toàn bộ lịch sử.</p><div class="return">Có nội dung mới → bước 2</div></div>
+        <div class="node amber"><span class="tag">CHƯA ĐẠT</span><strong>Xem lại phần sai</strong><p>Đọc giải thích và nguồn → chủ động bấm Ôn lại.</p><div class="return">↳ Bước 3: quiz mới ưu tiên ý sai</div></div>
+      </div>
+      <p class="caption">Ôn lại vẫn kiểm tra phạm vi ban đầu và giữ số câu 3–10 của bộ đầu trong cùng phiên bản. Không cộng điểm qua nhiều lượt.</p>
+      <div class="node" style="margin-top:14px"><span class="tag">CORRECTION · NẾU CÂU QUIZ CÓ LỖI</span><strong>Báo câu sai → chọn lại nguồn / tạo lại</strong><p>Vô hiệu bộ lỗi, giữ feedback và lịch sử. Lỗi API: cho thử lại, không tự chuyển sang quiz mẫu.</p><div class="return">↳ Quay về bước 3</div></div>
+    </section>
+    <aside aria-label="Quy tắc và phân công">
+      <section class="panel">
+        <h2>4 quy tắc dễ nhớ</h2>
+        <div class="rule"><strong>Một vị trí nguồn → một mục</strong><span>Gộp cùng slide/đoạn. Không gán trang chatlog sang PDF khi chưa đối chiếu.</span></div>
+        <div class="rule"><strong>Nội dung mới → phiên bản mới</strong><span>Mục trở lại Cần ôn; kết quả cũ vẫn xem được.</span></div>
+        <div class="rule"><strong>Không đủ nguồn → không đoán</strong><span>AI yêu cầu bổ sung thay vì tự tạo đáp án.</span></div>
+        <div class="rule"><strong>Nhắc ôn do học viên chọn</strong><span>Chỉ hiển thị trong app, ngày +1/+3; dừng khi đạt.</span></div>
+      </section>
+      <section class="panel">
+        <h2>Bằng chứng & showcase</h2><div class="rule"><strong>11/12 học viên khó tìm lại</strong><span>Khảo sát nhóm báo cáo; chưa có log gốc, cần mở rộng ≥20 người.</span></div>
+        <div class="rule"><strong>AI thật + đo thật</strong><span>Quiz từ nguồn đã đối chiếu; 20 ca đánh giá, ít nhất 10 ca từ chatlog.</span></div>
+        <div class="rule"><strong>Mô phỏng có nhãn</strong><span>Tutor và tích hợp VLearn; mở transcript thật khi chưa ánh xạ được slide.</span></div>
+        <div class="rule"><strong>Giữ nền hiện có</strong><span>HTML/CSS/JS + localStorage + một server API.</span></div>
+      </section>
+      <section class="panel">
+        <h2>Team 3 người</h2>
+        <div class="team">
+          <div class="person"><b>Khuê · Product</b>Khảo sát, canvas/spec, user test, slide và demo.</div>
+          <div class="person"><b>Huy · Prototype & AI</b>UI, kiểm tra nguồn, quiz 3–10 câu, nhắc +1/+3.</div>
+          <div class="person"><b>Dũng · Evidence & eval</b>Mining chatlog, ≥20 ca thử, chạy và báo số đo.</div>
+        </div>
+        <p class="caption">Chốt contract → FE & AI làm song song → ghép → chạy 4 nhánh demo.</p>
+      </section>
+    </aside>
+  </div>
+  <footer>Thiết kế đề xuất · 18/09/2026 · <a href="spec.md">Spec chính</a> · <a href="HACKATHON_CONTEXT.md">Bối cảnh & dữ liệu</a><br>18/09: CP3 16:00 · CP4 21:00 · CP5 22:30. Giờ Việt Nam. Chưa phải báo cáo đã triển khai.</footer>
+</main>
+</body>
+</html>
