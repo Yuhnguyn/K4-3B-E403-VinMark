@@ -17,4 +17,4 @@ logs/
 # Course slides (data rule) - rebuild with: node codebase/build-slides.cjs
 /d1-slide-hackathon.pdf
 /d2-slide-hackathon.pdf
-mockup/slides/
+# mockup/slides/
