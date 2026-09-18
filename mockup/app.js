@@ -28,7 +28,7 @@ const ATTENTION = [
  ['Những thành phần nào tham gia vào attention?',['Query, key và value','Chỉ tên người dùng','Chỉ token cuối','Chỉ độ dài câu'],0,'Query, key và value là các thành phần trong phép tính attention.'],
  ['Vì sao một từ cần được xét trong ngữ cảnh?',['Nghĩa của từ có thể phụ thuộc các từ xung quanh','Mọi từ luôn có một nghĩa','Để bỏ qua câu trước','Để không cần token'],0,'Ngữ cảnh cung cấp thông tin liên quan để diễn giải token.']
 ];
-const referenceMap = {'1':{lesson:3,material:'main',page:12},'2':{lesson:3,material:'main',page:18},'3':{lesson:2,material:'main',page:25},'4':{lesson:2,material:'main',page:21},'5':{lesson:1,material:'main',page:9},'6':{lesson:1,material:'main',page:15}};
+const referenceMap = {'1':{lesson:3,material:'main',page:12},'2':{lesson:3,material:'main',page:18},'3':{lesson:2,material:'main',page:17},'4':{lesson:2,material:'main',page:27},'5':{lesson:1,material:'main',page:16},'6':{lesson:1,material:'main',page:13}};
 const realSlidesByDay = {};
 const realSlidePacks = {};
 const topics = seed.map(x=>{
@@ -60,6 +60,9 @@ const materials=day=>[
   {id:'examples',name:'Ví dụ và tình huống thực hành'}
 ];
 const baseSlide=(page,title,bullets,kind='text')=>({page,title,bullets,kind});
+const pdfSlides=day=>typeof PDF_SLIDES==='object'?PDF_SLIDES[day]:null;
+// VLearn slide number → page of the hackathon PDF (Day 1 slide 3 "mở đầu phần" is not in the PDF).
+const pdfPageFor=(day,slideNo)=>day===1?(slideNo===3?null:slideNo>3?slideNo-1:slideNo):slideNo;
 function contentBullets(content){
   const text=String(content||'').replace(/\s+/g,' ').trim();
   if(!text)return ['Slide không có phần văn bản.'];
@@ -71,7 +74,8 @@ function contentBullets(content){
 function realSlides(pack,day){
   return (pack?.slides||[]).map(slide=>({
     page:Number(slide.slide_number),title:slide.slide_title,content:slide.content,
-    pdfPage:day===1&&Number(slide.slide_number)===3?null:day===1&&Number(slide.slide_number)>3?Number(slide.slide_number)-1:Number(slide.slide_number),
+    pdfPage:pdfPageFor(day,Number(slide.slide_number)),image:pdfSlides(day)?.[pdfPageFor(day,Number(slide.slide_number))-1]?.image||null,
+    topicId:topics.find(t=>referenceMap[t.id]&&t.ref.lesson===day&&t.ref.page===Number(slide.slide_number))?.id,
     bullets:contentBullets(slide.content),kind:'real',day,sourceFile:pack.file_name
   }));
 }
@@ -109,6 +113,7 @@ function historySVG(){
  </svg>`;
 }
 function slideMarkup(slide,thumbnail=false){
+ if(slide.kind==='real'&&slide.image) return thumbnail?`<img src="${esc(slide.image)}" alt="" loading="lazy"><small>${slide.page}</small>`:`<img class="slide-img" src="${esc(slide.image)}" alt="Slide ${slide.page}: ${esc(slide.title)}">`;
  if(thumbnail) return `${slide.kind==='history'?historySVG():`<span>${esc(slide.title)}</span>`}<small>${slide.page}</small>`;
  if(slide.kind==='history')return `<h2>${esc(slide.title)}</h2>${historySVG()}<div class="history-caption">Đường cong minh họa các giai đoạn — không phải số liệu đo lường định lượng.</div><div class="slide-bullets"><strong>Các hướng đi lần lượt chạm trần:</strong><p>• <b>Hướng symbolic</b>: luật thủ công khó bao phủ nhiều ngữ cảnh.</p><p>• <b>Hướng Perceptron</b>: học từ ví dụ nhưng mô hình quá đơn giản.</p></div>`;
  if(slide.kind==='real'&&slide.pdfPage)return `<div class="pdf-slide"><iframe class="pdf-frame" src="/api/vlearn-pdf?day=${slide.day}#page=${slide.pdfPage}" title="${esc(slide.title)} · PDF VLearn" loading="lazy"></iframe><div class="pdf-caption">VLearn · Day ${String(slide.day).padStart(2,'0')} · slide ${slide.page} · PDF trang ${slide.pdfPage}</div></div>`;
@@ -133,7 +138,7 @@ function lesson(){
  $('#app').innerHTML=`<div class="lesson-top">${tool('back-lesson',S.origin?'Quay lại Luyện tập':'Quay lại Khóa học','back')}<span class="lesson-title">Bài ${S.ref.lesson} · ${esc(lessonNames[S.ref.lesson].split(' · ')[0])}</span><div class="lesson-progress">${readCount}/${slides.length} trang <span><i style="width:${readCount/slides.length*100}%"></i></span></div><div class="lesson-actions"><button class="spark" data-action="open-chat">${icon('star')}Đặt câu hỏi với AI</button><button data-action="request-help">${icon('hand')}Gửi yêu cầu</button><span class="avatar">N</span></div></div>
  <div class="lesson-body ${S.sidebar?'':'no-sidebar'}">${S.sidebar?`<aside class="lesson-sidebar"><div class="side-head">NỘI DUNG BÀI HỌC ${tool('toggle-sidebar','Đóng mục lục','close')}</div><div class="side-section"><button class="side-group" data-action="toggle-slides" aria-expanded="${S.slidesOpen}">Slides ${icon(S.slidesOpen?'down':'next')}</button>${S.slidesOpen?materials(S.ref.lesson).map(m=>`<button class="lesson-link ${S.ref.material===m.id?'active':''}" data-action="select-material" data-id="${m.id}"><span class="material-icon">${icon('slides')}</span><span class="material-title">${esc(m.name)}</span>${S.ref.material===m.id?'<small>Đang học</small>':''}</button>`).join(''):''}</div><button class="side-group lab" data-action="toggle-lab" aria-expanded="${S.labOpen}"><span>${icon('lab')} Lab ${String(S.ref.lesson).padStart(2,'0')} – Thực hành</span>${icon(S.labOpen?'down':'next')}</button>${S.labOpen?`<div class="lab-item">${[['setup','Lấy repo và nhìn thấy đích đến'],['baseline','Dựng môi trường và chạy test baseline'],['reading','Bài đọc'],['code','Code gợi ý: Gọi model']].map(([id,title],i)=>`${i===2?'<div class="lab-head">Task 1.1 – Gọi model và đo độ trễ</div>':''}<button class="lesson-link" data-action="open-reading" data-id="${id}"><span class="step-circle">${i+1}</span>${title}</button>`).join('')}</div>`:''}</aside>`:''}
  <section class="slide-area"><div class="context-strip"><span>${!S.sidebar?tool('toggle-sidebar','Mở mục lục','menu'):''}${esc(materialName(S.ref))} · ${slideSourceLabel(S.ref)}</span>${S.origin?button('back-lesson','Về mục đang ôn','back'):button('practice','Luyện tập','practice')}</div>
- <div class="slide-viewport"><div class="slide-box ${marked?'highlighted':''}" style="width:${S.zoom}%">${slideMarkup(slide)}<button class="ai-fab" data-action="open-chat" aria-label="Hỏi AI về slide này">${icon('star')}</button></div></div>
+ <div class="slide-viewport"><div class="slide-box ${marked?'highlighted':''} ${slide.kind==='real'&&slide.pdfPage?'pdf-box':''}" style="width:${S.zoom}%">${slideMarkup(slide)}<button class="ai-fab" data-action="open-chat" aria-label="Hỏi AI về slide này">${icon('star')}</button></div></div>
  <div class="viewer-tools"><div class="tool-group">${tool('mark-slide',marked?'Bỏ đánh dấu trên slide':'Đánh dấu kiến thức trên slide','pen',marked?'class="active"':'')}${tool('toggle-sidebar','Ẩn hoặc hiện mục lục','book')}${tool('save-slide','Lưu slide vào VinMark','save')}</div><div class="tool-group zoom-group">${tool('zoom-out','Thu nhỏ','minus',S.zoom<=75?'disabled':'')}<span>${S.zoom}%</span>${tool('zoom-in','Phóng to','plus',S.zoom>=150?'disabled':'')}</div><div class="tool-group">${tool('read-text','Đọc nội dung slide','note')}${tool('expand','Chế độ tập trung','expand')}</div><div class="tool-group page-nav">${tool('prev-slide','Slide trước','back',idx<=0?'disabled':'')}<input class="page-field" id="page-number" aria-label="Số trang slide" type="number" min="1" value="${slide.page}"><span class="page-total">· ${idx+1}/${slides.length} ${S.ref.course==='k4'&&S.ref.material==='main'&&realSlidesByDay[S.ref.lesson]?.length?'slide thật':'slide mẫu'}</span>${tool('next-slide','Slide tiếp theo','next',idx>=slides.length-1?'disabled':'')}</div><div class="tool-group">${tool('toggle-thumbs','Ẩn hoặc hiện ảnh thu nhỏ','grid')}${tool('notes','Sổ ghi chú','note')}</div></div>
  ${S.thumbnails?`<div class="thumb-track" aria-label="Ảnh thu nhỏ các slide">${slides.map(s=>`<button class="thumb ${s.kind==='cover'?'cover':''} ${s.page===slide.page?'active':''}" data-action="goto-slide" data-page="${s.page}" aria-label="Mở slide ${s.page}: ${esc(s.title)}" ${s.page===slide.page?'aria-current="page"':''}>${slideMarkup(s,true)}</button>`).join('')}</div>`:''}
  ${S.saveBanner?`<div class="saved-banner"><span>${icon('check')} Đã lưu kiến thức cùng slide nguồn vào VinMark.</span>${button('open-saved','Ôn mục vừa lưu','next')}</div>`:''}
@@ -142,7 +147,7 @@ function lesson(){
  $('#page-number').addEventListener('change',e=>{const page=Number(e.target.value);if(slides.some(x=>x.page===page))moveSlide(page);else{e.target.value=slide.page;toast('Các trang trong demo: '+slides.map(x=>x.page).join(', '));}});
  $('#slide-note').addEventListener('input',e=>{S.notes[key]=e.target.value;persist();});
 }
-function filtered(){return S.items.filter(x=>(S.tab==='all'||(S.tab==='need'?x.status!=='done':x.status==='done'))&&(S.filter==='all'||x.session===S.filter)&&normalize(`${x.title} ${x.question}`).includes(normalize(S.query)));}
+function filtered(){return S.items.filter(x=>(S.tab==='all'||(S.tab==='need'?x.status!=='done':x.status==='done'))&&(S.filter==='all'||x.session===S.filter)&&normalize(`${x.title} ${x.question} ${(x.conversation||[]).map(t=>t.question).join(' ')}`).includes(normalize(S.query)));}
 function practice(){
  $('#app').className='page';
  $('#app').innerHTML=`<div class="eyebrow">VINMARK · TRANG ÔN TẬP</div><h1>LUYỆN TẬP</h1><p class="lead">Tìm lại điều bạn từng hỏi. Ôn đến khi chắc chắn hơn.</p><div class="stats"><div class="stat"><strong>${S.items.filter(x=>x.status!=='done').length}</strong><span>Cần ôn</span></div><div class="stat"><strong>${S.items.filter(x=>x.status==='done').length}</strong><span>Đã ôn đạt</span></div><div class="stat"><strong>${S.items.length}</strong><span>Tổng đã lưu</span></div></div><div class="toolbar"><label class="search"><span>⌕</span><input id="query" type="search" aria-label="Tìm kiến thức" placeholder="Tìm theo kiến thức hoặc câu hỏi…" value="${esc(S.query)}"></label><select id="filter" aria-label="Lọc buổi học"><option value="all">Tất cả buổi học</option>${[...new Set(S.items.map(x=>x.session))].map(s=>`<option value="${esc(s)}" ${S.filter===s?'selected':''}>${esc(s)}</option>`).join('')}</select><div class="tabs" aria-label="Trạng thái">${[['need','Cần ôn'],['done','Đã ôn đạt'],['all','Tất cả']].map(([id,title])=>`<button class="${S.tab===id?'active':''}" data-action="tab" data-id="${id}" aria-pressed="${S.tab===id}">${title}</button>`).join('')}</div></div><div class="note">ⓘ <b>Dữ liệu minh họa CP2.</b> Agent kiểm tra ngữ cảnh và chọn bài quiz được mô phỏng trong bản này.</div>${S.notice?`<p role="status">${esc(S.notice)}</p>`:''}<section class="layout"><aside class="panel list"><div class="list-head"><h2>Kiến thức đã lưu</h2><span id="count"></span></div><div id="list"></div></aside><article class="panel detail" id="detail"></article></section>${footer()}`;
@@ -160,7 +165,10 @@ function renderDetail(){
  const x=S.items.find(t=>t.id===S.selected),p=$('#detail');if(!x){p.innerHTML='<div class="empty">Chọn một kiến thức để bắt đầu ôn tập.</div>';return;}
  if(S.loading){p.innerHTML='<div class="empty"><div class="spinner"></div><h2>Đang chuẩn bị bài quiz</h2><p>Agent đang xem phạm vi kiến thức và các ý cần kiểm tra.</p><p class="tiny muted">Mô phỏng CP2</p></div>';return;}
  if(S.quiz){renderQuiz(x);return;}
-  p.innerHTML=`<div class="dhead"><div class="dtitle"><i class="dot ${x.status}"></i><div><h2>${esc(x.title)}</h2><div class="sub">${esc(x.session)} · ${esc(x.date)}</div></div></div><div class="buttons">${button('source','Mở slide nguồn','slides')}${button('start-quiz','Làm quiz','star','class="primary" '+(x.status==='missing'&&!x.sourceId?'disabled':''))}</div></div><div class="source"><div><div class="label">${x.source==='Đánh dấu slide'?'Đoạn kiến thức đã lưu':'Câu hỏi đã lưu'}</div><div class="quote">${esc(x.question)}</div><div class="summary"><h3>Kiến thức cần nhớ</h3><ul>${x.summary.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div></div><aside class="source-card"><div class="label">Nguồn tham chiếu</div><div class="slide">${esc(x.slide)}</div><p>${esc(x.src)}</p><button data-action="source">Xem đoạn slide →</button></aside></div><div class="quiet-notice">${icon('star')} Bài quiz được chuẩn bị theo kiến thức bạn cần ôn. AI chọn 3–10 câu sau khi kiểm tra nội dung nguồn.</div><div class="schedule"><div class="chip"><strong>${x.status==='done'?'✓ Đã ôn đạt':'◷ Cần ôn'}</strong>${x.status==='done'?'Đã dừng nhắc; vẫn lưu lịch sử':'Ôn theo tiến độ của bạn'}</div>${x.status==='done'?'':'<div class="chip"><strong>Ngày +1 · Ngày +3</strong>Lịch nhắc minh họa</div>'}</div>${x.status==='missing'?`<div class="state missing"><div><b>Chưa đủ nội dung nguồn để tạo quiz.</b><br>Thêm nội dung của slide trước khi làm bài.</div>${button('supplement','Bổ sung nguồn','note')}</div>`:x.status==='done'?'<div class="state done">✓ Đã ôn đạt. Bạn có thể làm lại quiz khi muốn.</div>':''}`;
+ const chat=isChatItem(x),newTurns=chat&&x.aiQuiz?x.conversation.length-x.aiQuiz.basedOn:0;
+ const saved=chat?`<div class="label">Hội thoại với AI tutor</div><div class="conversation">${x.conversation.map(t=>`<div class="turn"><div class="quote">${esc(t.question)}</div><div class="tutor-answer">${esc(t.answer)}${t.grounded===false?'<span class="off-slide">Ngoài phạm vi slide</span>':''}</div></div>`).join('')}</div>`:`<div class="label">${x.source==='Đánh dấu slide'?'Đoạn kiến thức đã lưu':'Câu hỏi đã lưu'}</div><div class="quote">${esc(x.question)}</div>`;
+ const quizNote=!chat?'Bài quiz được chuẩn bị theo kiến thức bạn cần ôn. AI chọn 3–10 câu sau khi kiểm tra nội dung nguồn.':x.aiQuiz?`Quiz đã được AI tạo từ slide và hội thoại này; các lần làm sau dùng lại bộ câu hỏi đó.${newTurns>0?` ${newTurns} câu hỏi mới sau khi tạo quiz chưa có trong bộ câu hỏi.`:''}`:'AI sẽ tạo quiz 3–10 câu từ slide và hội thoại này. Quiz chỉ tạo một lần rồi được lưu lại.';
+  p.innerHTML=`<div class="dhead"><div class="dtitle"><i class="dot ${x.status}"></i><div><h2>${esc(x.title)}</h2><div class="sub">${esc(x.session)} · ${esc(x.date)}</div></div></div><div class="buttons">${button('source','Mở slide nguồn','slides')}${button('start-quiz',chat&&!x.aiQuiz?'Tạo quiz':'Làm quiz','star','class="primary" '+(x.status==='missing'&&!x.sourceId&&!pdfSourceRef(x)?'disabled':''))}</div></div><div class="source"><div>${saved}<div class="summary"><h3>Kiến thức cần nhớ</h3><ul>${x.summary.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div></div><aside class="source-card"><div class="label">Nguồn tham chiếu</div><div class="slide">${esc(x.slide)}</div><p>${esc(x.src)}</p><button data-action="source">Xem đoạn slide →</button></aside></div><div class="quiet-notice">${icon('star')} ${esc(quizNote)}</div><div class="schedule"><div class="chip"><strong>${x.status==='done'?'✓ Đã ôn đạt':'◷ Cần ôn'}</strong>${x.status==='done'?'Đã dừng nhắc; vẫn lưu lịch sử':'Ôn theo tiến độ của bạn'}</div>${x.status==='done'?'':'<div class="chip"><strong>Ngày +1 · Ngày +3</strong>Lịch nhắc minh họa</div>'}</div>${x.status==='missing'?`<div class="state missing"><div><b>Chưa đủ nội dung nguồn để tạo quiz.</b><br>Thêm nội dung của slide trước khi làm bài.</div>${button('supplement','Bổ sung nguồn','note')}</div>`:x.status==='done'?'<div class="state done">✓ Đã ôn đạt. Bạn có thể làm lại quiz khi muốn.</div>':''}`;
 }
 // CP2 adapter: returns a variable-length plan, with no fixed question count in the UI.
 // CP3 can replace this function with an API returning the same object.
@@ -176,33 +184,57 @@ function normalizeQuizPlan(plan){
   if(questions.length<3||questions.length>10||questions.some(q=>!Array.isArray(q.options)||q.options.length!==4))return null;
   return {...plan,questions,questionCount:questions.length,passRatio:.8};
 }
+const isChatItem=item=>Array.isArray(item?.conversation)&&item.conversation.length>0;
+async function postJson(url,payload,fallbackMessage){
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
+  let response;
+  try{response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},signal:controller.signal,body:JSON.stringify(payload)});}
+  catch(error){if(error.name==='AbortError')throw new Error('API quá thời gian chờ 30 giây.');throw error;}finally{clearTimeout(timeout);}
+  const body=await response.json().catch(()=>({status:'error',message:'API trả về dữ liệu không hợp lệ.'}));
+  if(!response.ok||body.status==='error')throw new Error(body.message||fallbackMessage);
+  return body;
+}
+// Quiz source for chat items: slide content plus tutor answers that stayed within the slide.
+function chatSource(item){
+  const turns=item.conversation.filter(t=>t.grounded!==false);
+  return {title:item.title,text:[`${item.title} (${item.src})`,...(item.slideText||item.summary).map(s=>`- ${s}`),'',...turns.flatMap(t=>[`Học viên hỏi: ${t.question}`,`Tutor trả lời: ${t.answer}`])].join('\n')};
+}
+// Server-side source for items saved on a real PDF slide page, e.g. "d1:15".
+// item.ref.page is the VLearn slide number; the decision module addresses PDF pages.
+const pdfSourceRef=item=>{
+  if(item.ref?.material!=='main'||!pdfSlides(item.ref.lesson))return null;
+  const page=pdfPageFor(item.ref.lesson,item.ref.page);
+  return page&&pdfSlides(item.ref.lesson)[page-1]?`d${item.ref.lesson}:${page}`:null;
+};
 async function requestQuiz(item){
-  if(location.protocol==='file:'||!item.sourceId){
+  const chat=isChatItem(item),pdfRef=pdfSourceRef(item);
+  if(location.protocol==='file:'||(!item.sourceId&&!chat&&!pdfRef)){
     await new Promise(resolve=>setTimeout(resolve,650));
     return normalizeQuizPlan(mockAgentPlan(item));
   }
-  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
-  let response;
-  try{response=await fetch('/api/quiz',{method:'POST',headers:{'content-type':'application/json'},signal:controller.signal,body:JSON.stringify({
-    itemId:item.id,revision:item.revision||1,sourceRef:{sourceId:item.sourceId},learnerQuestions:[item.question],mode:item.lastResult?'retry':'initial',
+  if(chat&&item.aiQuiz)return normalizeQuizPlan(item.aiQuiz);
+  const body=await postJson('/api/quiz',chat?{
+    itemId:item.id,revision:1,mode:'initial',learnerQuestions:item.conversation.map(t=>t.question),
+    ...(pdfRef?{sourceRef:pdfRef}:{sourceRef:`slide:${item.id}`,slideSource:chatSource(item)})
+  }:{
+    itemId:item.id,revision:item.revision||1,sourceRef:item.sourceId||pdfRef,learnerQuestions:item.id.startsWith('saved-')&&item.source==='Đánh dấu slide'?[]:[item.question],mode:item.lastResult?'retry':'initial',
     previousAttempt:item.lastResult?{questionCount:item.lastResult.total,wrongConcepts:item.lastResult.wrongConcepts||[]}:undefined
-  })});}catch(error){if(error.name==='AbortError')throw new Error('API quá thời gian chờ 30 giây.');throw error;}finally{clearTimeout(timeout);}
-  const body=await response.json().catch(()=>({status:'error',message:'API trả về dữ liệu không hợp lệ.'}));
-  if(!response.ok||body.status==='error')throw new Error(body.message||'Không thể chuẩn bị quiz.');
+  },'Không thể chuẩn bị quiz.');
   if(body.status==='ready'){
     const plan=normalizeQuizPlan(body);if(!plan)throw new Error('API trả về quiz không đúng cấu trúc.');
+    if(chat){item.aiQuiz={...plan,basedOn:item.conversation.length};persist();}
     return plan;
   }
   return body;
 }
 async function startQuiz(){
-  const item=S.items.find(x=>x.id===S.selected);if(!item||item.status==='missing'&&!item.sourceId)return;
+  const item=S.items.find(x=>x.id===S.selected);if(!item||item.status==='missing'&&!item.sourceId&&!pdfSourceRef(item))return;
   const token=++S.requestId;S.loading=true;renderDetail();
   try{
    if(item.sourceId&&item.status==='missing')item.status='need';
    const plan=await requestQuiz(item);if(token!==S.requestId||S.view!=='practice'||S.selected!==item.id)return;
    S.loading=false;
-   if(plan?.status==='needs_context'){item.status='missing';item.sourceReady=false;persist();toast(plan.reason);renderDetail();return;}
+   if(plan?.status==='needs_context'||plan?.status==='out_of_scope'){if(!isChatItem(item)&&!pdfSourceRef(item)){item.status='missing';item.sourceReady=false;}persist();toast([plan.reason,plan.nextAction].filter(Boolean).join(' '));renderDetail();return;}
    if(!plan){toast('Chưa đủ nội dung để chuẩn bị bài quiz.');renderDetail();return;}
    if(plan.sourceVersion&&item.sourceVersion&&plan.sourceVersion!==item.sourceVersion){item.revision++;item.sourceVersion=plan.sourceVersion;item.status='need';persist();toast('Nguồn đã thay đổi. Hãy tạo lại quiz cho phiên bản mới.');renderDetail();return;}
    if(plan.sourceVersion)item.sourceVersion=plan.sourceVersion;
@@ -221,7 +253,7 @@ function renderQuiz(item){
    $('#detail').innerHTML=head+`<div class="quiz"><div class="result"><div class="score">${score}/${total}</div><div><h3>${pass?'Đã ôn đạt':'Cần ôn thêm'}</h3><p>Tiêu chí của demo: đúng ít nhất ${required}/${total} câu (80%).</p></div></div><div class="state ${pass?'done':'need'}">${pass?'Đã lưu kết quả và dừng lịch nhắc cho mục này.':'Đã lưu kết quả. Xem lại các ý trả lời sai trước khi ôn tiếp.'}</div>${plan.questions.map((q,i)=>`<div class="review-card ${run.answers[i]===q.correctIndex?'good':'bad'}"><h3>${run.answers[i]===q.correctIndex?'✓':'○'} Câu ${i+1}. ${esc(q.prompt)}</h3><p>Bạn chọn: ${esc(q.options[run.answers[i]])}</p><p><b>Đáp án: ${esc(q.options[q.correctIndex])}</b></p><p>${esc(q.explanation)}</p><button class="btn" data-action="source">${icon('slides')} ${esc(item.slide)}</button> ${button('report-quiz','Báo câu sai','note',`data-index="${i}"`)}</div>`).join('')}<div class="quizfoot">${button('exit-quiz','Về kiến thức','back')}${button('retry-quiz','Làm lại quiz','star')}</div></div>`;return;
  }
  const q=plan.questions[run.index],selected=run.answers[run.index];
-  $('#detail').innerHTML=head+`<div class="quiet-notice"><b>Bài ôn đã sẵn sàng · ${total} câu</b><br>${esc(plan.reason||'Kiểm tra các ý cốt lõi có trong nguồn đã lưu.')}<br><span class="tiny muted">${plan.generationMode==='curated-demo'?'API demo dùng nguồn đã duyệt.':'Fixture demo được gắn nhãn rõ.'} Đạt khi đúng ít nhất ${required}/${total} câu.</span></div><div class="quiz-top"><div class="quiz-dots">${plan.questions.map((_,i)=>`<button data-action="quiz-goto" data-index="${i}" class="${run.index===i?'current':''} ${run.answers[i]!==undefined?'answered':''}" aria-label="Đến câu ${i+1}">${i+1}</button>`).join('')}</div><span class="muted tiny">${run.answers.filter(a=>a!==undefined).length}/${total} đã trả lời</span></div><div class="question">${run.index+1}. ${esc(q.prompt)}</div><div class="answers">${q.options.map((a,i)=>`<button class="answer ${selected===i?'sel':''}" data-action="answer" data-index="${i}" aria-pressed="${selected===i}"><span class="key">${String.fromCharCode(65+i)}</span>${esc(a)}</button>`).join('')}</div><div class="quizfoot">${button('quiz-prev','Câu trước','back',run.index===0?'disabled':'')}${run.index<total-1?button('quiz-next','Câu tiếp theo','next'):button('submit-quiz','Nộp bài','check',run.answers.filter(a=>a!==undefined).length<total?'disabled':'')}</div>`;
+  $('#detail').innerHTML=head+`<div class="quiet-notice"><b>Bài ôn đã sẵn sàng · ${total} câu</b><br>${esc(plan.reason||'Kiểm tra các ý cốt lõi có trong nguồn đã lưu.')}<br><span class="tiny muted">${plan.generationMode==='curated-demo'?'API demo dùng nguồn đã duyệt.':plan.generationMode==='fixture'?'Fixture demo được gắn nhãn rõ.':'Quiz do AI tạo từ nguồn đã lưu.'} Đạt khi đúng ít nhất ${required}/${total} câu.</span></div><div class="quiz-top"><div class="quiz-dots">${plan.questions.map((_,i)=>`<button data-action="quiz-goto" data-index="${i}" class="${run.index===i?'current':''} ${run.answers[i]!==undefined?'answered':''}" aria-label="Đến câu ${i+1}">${i+1}</button>`).join('')}</div><span class="muted tiny">${run.answers.filter(a=>a!==undefined).length}/${total} đã trả lời</span></div><div class="question">${run.index+1}. ${esc(q.prompt)}</div><div class="answers">${q.options.map((a,i)=>`<button class="answer ${selected===i?'sel':''}" data-action="answer" data-index="${i}" aria-pressed="${selected===i}"><span class="key">${String.fromCharCode(65+i)}</span>${esc(a)}</button>`).join('')}</div><div class="quizfoot">${button('quiz-prev','Câu trước','back',run.index===0?'disabled':'')}${run.index<total-1?button('quiz-next','Câu tiếp theo','next'):button('submit-quiz','Nộp bài','check',run.answers.filter(a=>a!==undefined).length<total?'disabled':'')}</div>`;
 }
 function finishQuiz(){
  const run=S.quiz;if(!run||run.submitted||run.answers.filter(a=>a!==undefined).length!==run.plan.questions.length)return;
@@ -238,26 +270,55 @@ function makeQuestions(slide){
  ['Perceptron học chủ yếu từ đâu?',['Ví dụ huấn luyện','Lịch sử điểm danh','Danh sách khóa học','Màu của slide'],0,'Perceptron là mô hình học từ ví dụ.'],
  ['Đường cong trong slide thể hiện điều gì?',['Minh họa khái niệm các giai đoạn AI','Số liệu lợi nhuận đã kiểm chứng','Độ chính xác mọi mô hình','Số lượng học viên'],0,'Đây là sơ đồ khái niệm, không phải biểu đồ đo lường định lượng.']
  ];
- return slide.bullets.map((b,i)=>[`Theo nguồn, ý nào đúng về “${slide.title}” (ý ${i+1})?`,[b,'Không cần kiểm tra hoặc đối chiếu nguồn.','Mọi trường hợp đều có cùng một kết quả.','Có thể bỏ qua toàn bộ ngữ cảnh.'],0,`Nội dung nguồn: ${b}`]);
+ return slide.bullets.slice(0,5).map((b,i)=>[`Theo nguồn, ý nào đúng về “${slide.title}” (ý ${i+1})?`,[b,'Không cần kiểm tra hoặc đối chiếu nguồn.','Mọi trường hợp đều có cùng một kết quả.','Có thể bỏ qua toàn bộ ngữ cảnh.'],0,`Nội dung nguồn: ${b}`]);
 }
-function saveLearning(source,question=''){
- const slide=currentSlide(),key=refKey(S.ref);
+function saveLearning(source,question='',ref=S.ref,slide=currentSlide()){
+ const key=refKey(ref);
  let item=S.items.find(x=>refKey(x.ref)===key && (source==='Đánh dấu slide'?x.source===source:x.question===question));
  if(!item){
  const canonical=topics.find(t=>t.id===slide.topicId);
- item={id:'saved-'+Date.now()+'-'+S.items.length,session:`Buổi ${String(S.ref.lesson).padStart(2,'0')} · ${lessonNames[S.ref.lesson].split(' · ').slice(1).join(' · ')||'Hackathon'}`,
- date:new Date().toLocaleDateString('vi-VN'),title:slide.title,source,question:question||slide.bullets[0],slide:`Slide ${slide.page}`,src:`${materialName(S.ref)} · trang ${slide.page}`,ref:{...S.ref},summary:[...slide.bullets],status:'need',sourceReady:true,quiz:canonical?structuredClone(canonical.quiz):makeQuestions(slide),attempts:0};
+ item={id:'saved-'+Date.now()+'-'+S.items.length,session:`Buổi ${String(ref.lesson).padStart(2,'0')} · ${lessonNames[ref.lesson].split(' · ').slice(1).join(' · ')||'Hackathon'}`,
+ date:new Date().toLocaleDateString('vi-VN'),title:slide.title,source,question:question||slide.bullets[0],slide:`Slide ${slide.page}`,src:`${materialName(ref)} · trang ${slide.page}`,ref:{...ref},summary:slide.bullets.slice(0,6),slideText:[...slide.bullets],status:'need',sourceReady:true,quiz:canonical?structuredClone(canonical.quiz):makeQuestions(slide),attempts:0};
  S.items.unshift(item);
  }
  S.lastSaved=item.id;S.saveBanner=true;persist();return item;
 }
+// One saved item per slide collects every tutor turn asked on that slide.
+function saveChatTurn(ref,slide,question,reply){
+ let item=S.items.find(x=>Array.isArray(x.conversation)&&refKey(x.ref)===refKey(ref));
+ if(!item){item=saveLearning('Từ chat Tutor',question,ref,slide);item.conversation=item.conversation||[];}
+ item.conversation.push({question,answer:reply.answer,grounded:reply.grounded!==false,at:new Date().toISOString()});
+ S.lastSaved=item.id;persist();return item;
+}
+async function requestTutor(ref,slide,question,history){
+ if(location.protocol==='file:'){
+  await new Promise(resolve=>setTimeout(resolve,650));
+  return {answer:`Minh họa từ slide hiện tại: ${slide.bullets.join(' ')} Đây là phần nhắc lại nguồn, chưa phải câu trả lời cá nhân hóa từ AI thật.`,grounded:true};
+ }
+ return postJson('/api/chat',{slide:{title:slide.title,page:slide.page,lesson:lessonNames[ref.lesson],bullets:slide.bullets},question,
+  history:history.map(m=>({role:m.role,text:m.text}))},'AI tutor chưa trả lời được. Hãy thử lại.');
+}
+async function askTutor(question){
+ const ref={...S.ref},key=refKey(ref),slide=currentSlide(),history=S.chat[key]||[];
+ S.chatPending=key;S.chat[key]=[...history,{role:'user',text:question}];chatDrawer();
+ let failed=false;
+ try{
+  const reply=await requestTutor(ref,slide,question,history);
+  S.chat[key]=[...S.chat[key],{role:'assistant',text:reply.answer,grounded:reply.grounded!==false}];
+  saveChatTurn(ref,slide,question,reply);
+  toast('Đã lưu hội thoại cùng slide nguồn vào Luyện tập.');
+ }catch(error){
+  failed=true;S.chat[key]=history;toast(error.message||'AI tutor chưa trả lời được. Hãy thử lại.');
+ }finally{
+  S.chatPending=null;persist();
+  if(S.chatOpen&&S.view==='lesson'&&refKey(S.ref)===key){chatDrawer();if(failed)$('#chat-input').value=question;$('#chat-input').focus();}
+ }
+}
 function chatDrawer(){
- $('#chat-drawer')?.remove();const key=refKey(S.ref),slide=currentSlide(),history=S.chat[key]||[];
- document.body.insertAdjacentHTML('beforeend',`<aside id="chat-drawer" class="chat-drawer" aria-label="AI Tutor"><div class="dialog-head"><h2>${icon('star')} AI Tutor</h2>${tool('close-chat','Đóng chat','close')}</div><div class="chat-context">${esc(slide.title)} · Slide ${slide.page}<br>Phản hồi minh họa CP2 · Chưa kết nối AI thật</div><div class="chat-history">${history.length?history.map(m=>`<div class="chat-message ${m.role}">${esc(m.text)}${m.role==='assistant'?`<button class="citation" data-action="chat-citation">${icon('slides')} Nguồn: slide ${slide.page}</button><span class="tiny muted">Đã lưu cùng câu hỏi vào Luyện tập.</span>`:''}</div>`).join(''):'<div class="chat-message">Bạn muốn làm rõ điều gì ở slide này? Câu hỏi sẽ được lưu cùng nguồn để ôn lại.</div>'}</div><form class="chat-compose" id="chat-form"><textarea id="chat-input" required maxlength="2000" aria-label="Câu hỏi cho Tutor" placeholder="Ví dụ: Giải thích ý chính của slide này…"></textarea><div class="chat-hint">Bạn có thể mở lại câu hỏi trong trang Luyện tập.</div><button type="submit" class="btn primary">${icon('send')}Gửi câu hỏi</button></form></aside>`);
- $('#chat-form').addEventListener('submit',e=>{e.preventDefault();const question=$('#chat-input').value.trim();if(!question)return;
- const answer=`Minh họa từ slide hiện tại: ${slide.bullets.join(' ')} Đây là phần nhắc lại nguồn, chưa phải câu trả lời cá nhân hóa từ AI thật.`;
- S.chat[key]=[...history,{role:'user',text:question},{role:'assistant',text:answer}];saveLearning('Từ chat Tutor',question);chatDrawer();$('#chat-input').focus();toast('Đã lưu câu hỏi cùng slide nguồn vào VinMark.');
- });
+ $('#chat-drawer')?.remove();const key=refKey(S.ref),slide=currentSlide(),history=S.chat[key]||[],pending=S.chatPending===key;
+ const context=location.protocol==='file:'?'Phản hồi minh họa · Chạy qua server để dùng AI thật':'AI trả lời dựa trên nội dung slide này';
+ document.body.insertAdjacentHTML('beforeend',`<aside id="chat-drawer" class="chat-drawer" aria-label="AI Tutor"><div class="dialog-head"><h2>${icon('star')} AI Tutor</h2>${tool('close-chat','Đóng chat','close')}</div><div class="chat-context">${esc(slide.title)} · Slide ${slide.page}<br>${context}</div><div class="chat-history" aria-live="polite">${history.length?history.map(m=>`<div class="chat-message ${m.role}">${esc(m.text)}${m.role==='assistant'?`${m.grounded===false?'<span class="off-slide">Ngoài phạm vi slide</span>':''}<button class="citation" data-action="chat-citation">${icon('slides')} Nguồn: slide ${slide.page}</button><span class="tiny muted">Đã lưu cùng câu hỏi vào Luyện tập.</span>`:''}</div>`).join(''):'<div class="chat-message">Bạn muốn làm rõ điều gì ở slide này? Câu hỏi sẽ được lưu cùng nguồn để ôn lại.</div>'}${pending?'<div class="chat-message pending">AI đang đọc slide và trả lời…</div>':''}</div><form class="chat-compose" id="chat-form"><textarea id="chat-input" required maxlength="2000" aria-label="Câu hỏi cho Tutor" placeholder="Ví dụ: Giải thích ý chính của slide này…" ${pending?'disabled':''}></textarea><div class="chat-hint">Hội thoại được lưu trong trang Luyện tập để ôn và tạo quiz.</div><button type="submit" class="btn primary" ${pending?'disabled':''}>${icon('send')}${pending?'Đang trả lời…':'Gửi câu hỏi'}</button></form></aside>`);
+ $('#chat-form').addEventListener('submit',e=>{e.preventDefault();const question=$('#chat-input').value.trim();if(!question||S.chatPending)return;askTutor(question);});
  $('.chat-history').scrollTop=$('.chat-history').scrollHeight;
 }
 function modal(title,body,actions=''){
@@ -300,7 +361,7 @@ document.addEventListener('click',e=>{
   case 'start-quiz':case 'retry-quiz':S.quiz=null;startQuiz();break;
   case 'exit-quiz':S.quiz=null;practice();break;
   case 'report-quiz':{const q=S.quiz?.plan.questions[Number(b.dataset.index)];if(!q)break;modal('Báo câu quiz có lỗi',`<p>${esc(q.prompt)}</p><label for="quiz-feedback">Điều gì chưa đúng?</label><textarea id="quiz-feedback" maxlength="1000" required placeholder="Mô tả lỗi trong câu hỏi, đáp án hoặc nguồn…"></textarea>${button('save-quiz-feedback','Lưu phản hồi','save',`data-index="${b.dataset.index}"`)}`);break;}
-  case 'save-quiz-feedback':{const feedback=$('#quiz-feedback').value.trim();if(!feedback){$('#quiz-feedback').focus();break;}const feedbackItem=S.items.find(x=>x.id===S.quiz?.itemId);if(feedbackItem){feedbackItem.feedback=[...(feedbackItem.feedback||[]),{quizId:S.quiz.plan.quizId||null,questionIndex:Number(b.dataset.index),text:feedback,at:new Date().toISOString()}];feedbackItem.status='need';feedbackItem.quizInvalidated=true;persist();}S.quiz=null;$('#dialog').close();practice();toast('Đã lưu phản hồi và vô hiệu bộ quiz cũ.');break;}
+  case 'save-quiz-feedback':{const feedback=$('#quiz-feedback').value.trim();if(!feedback){$('#quiz-feedback').focus();break;}const feedbackItem=S.items.find(x=>x.id===S.quiz?.itemId);if(feedbackItem){feedbackItem.feedback=[...(feedbackItem.feedback||[]),{quizId:S.quiz.plan.quizId||null,questionIndex:Number(b.dataset.index),text:feedback,at:new Date().toISOString()}];feedbackItem.status='need';feedbackItem.quizInvalidated=true;delete feedbackItem.aiQuiz;persist();}S.quiz=null;$('#dialog').close();practice();toast('Đã lưu phản hồi và vô hiệu bộ quiz cũ.');break;}
   case 'answer':S.quiz.answers[S.quiz.index]=Number(b.dataset.index);renderDetail();break;
  case 'quiz-goto':S.quiz.index=Number(b.dataset.index);renderDetail();break;
  case 'quiz-prev':S.quiz.index--;renderDetail();break;

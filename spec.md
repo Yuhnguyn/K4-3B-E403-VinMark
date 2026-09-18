@@ -60,7 +60,7 @@ Khác biệt mục tiêu: mở lại đúng câu hỏi và vị trí nguồn c�
 
 **Automation: conditional.** Quiz sai khiến học viên ôn sai; nguồn thiếu phải bị chặn. Kiểm tra citation không chứng minh kiến thức đúng, cần người đối chiếu output đánh giá và có cơ chế báo câu sai.
 
-**Hiện tại:** UI mock bấm được, có endpoint Gemini/NIM/DeepSeek, validator và runner trace/eval. Đã chạy DeepSeek lượt 1 trên 20 ca: 14/20 pass; chưa đạt quality bar đề xuất. **Mục tiêu:** chỉ khai Working khi thực sự chạy end-to-end trên pack đã curate đầy đủ.
+**Hiện tại:** Module quyết định trung tâm nằm ở [codebase/decision.js](codebase/decision.js), gồm ba trạng thái ready / needs_context / out_of_scope, nguồn là trang PDF Day 1/2, và ghi vết prompt cùng phản hồi thô. Server và eval dùng chung module này. Lượt 1 trên 26 ca đạt 19/26 (73,1%); ba lượt chạy lặp đạt trung bình 75,6%; chưa đạt quality bar đề xuất. Xem [eval/results_round1.md](eval/results_round1.md). **Mục tiêu:** chỉ khai Working khi thực sự chạy end-to-end trên pack đã curate đầy đủ.
 
 **Non-goals:** không quét toàn khóa, không chatbot mới, không đăng nhập/đồng bộ, không tự luận hoặc chấm điểm chính thức, không vector database/multi-agent trong sản phẩm. Nhắc showcase đề xuất hiển thị trong app khi mở lại; không coi đó là email/push.
 
@@ -131,7 +131,8 @@ Hai người chấm độc lập năm output để làm rõ tiêu chí. Dũng gh
 
 | Lượt | Số ca | Kết quả | Trạng thái |
 |---|---|---|---|
-| AI lượt 1 · DeepSeek Flash | 20 | 14/20 (70%) | Đã chạy; chưa đạt quality bar 18/20; ghi kết quả trong eval/ |
+| ~~AI lượt 1 cũ · DeepSeek Flash~~ | 20 | ~~14/20~~ | **Vô hiệu**: `source_ref` không có trong allowlist nên runner cũ không gọi model |
+| AI lượt 1 · gpt-4o-mini · `decision-v1` | 26 | 19/26 (73,1%) | Chưa đạt bar. Lặp 3 lượt: 19 / 22 / 18. Lỗi chính: từ chối quá mức (3/3 lượt); trích dẫn chắp vá (dao động); thẩm quyền không ổn định. [eval/results_round1.md](eval/results_round1.md) |
 
 Đã chạy node --check trên app.js, data.js, check.cjs và các server adapter. Chưa chạy lại Playwright trên máy này vì môi trường chưa cài dependency. Cú pháp pass không phải kết quả eval AI.
 
