@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content="html-slides v0.9.4" />
+  <title>VinMark Pitch Deck</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-2: #111b2d;
+      --panel: rgba(19, 28, 45, 0.82);
+      --panel-2: rgba(27, 39, 62, 0.95);
+      --line: rgba(255,255,255,0.1);
+      --text: #edf2ff;
+      --muted: #bac6da;
+      --soft: #8fa1c5;
+      --brand: #7cc7ff;
+      --cyan: #66e0ff;
+      --green: #6fe7b7;
+      --amber: #ffd166;
+      --red: #ff7979;
+      --violet: #a78bfa;
+      --shadow: 0 18px 60px rgba(1, 6, 23, 0.5);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top left, #12213f, var(--bg) 40%, #090d18 100%);
+      color: var(--text);
+      font-family: "Segoe UI", Inter, Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    body { position: relative; }
+
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 2.6vh 3vw 2.6vh;
+      display: none;
+      opacity: 0;
+      background: transparent;
+    }
+
+    .slide.active {
+      display: block;
+      opacity: 1;
+      animation: rise 0.32s ease;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(12,18,31,0.85), rgba(12,18,31,0.72));
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(124, 199, 255, 0.14), transparent 30%),
+                  radial-gradient(circle at 75% 15%, rgba(167, 139, 250, 0.12), transparent 28%);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 3.2vh 3.1vw 2.8vh;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      font-size: clamp(10px, 1vw, 15px);
+      font-weight: 700;
+      margin-bottom: 1.4vh;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 3.5vw, 62px);
+      line-height: 1.04;
+      letter-spacing: -0.06em;
+      font-weight: 800;
+    }
+
+    h2 {
+      margin: 0 0 1.4vh;
+      line-height: 1.1;
+      font-size: clamp(24px, 2.5vw, 40px);
+      letter-spacing: -0.05em;
+    }
+
+    .highlight { color: var(--brand); }
+    .highlight-green { color: var(--green); }
+    .highlight-amber { color: var(--amber); }
+    .highlight-red { color: var(--red); }
+
+    .sub {
+      margin-top: 1vh;
+      color: var(--muted);
+      font-size: clamp(14px, 1.45vw, 20px);
+      line-height: 1.45;
+      max-width: 900px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      gap: 1.1vw;
+      margin-top: 2vh;
+      margin-bottom: 1.8vh;
+    }
+
+    .metric {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.2vh 1.1vw;
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .metric .value {
+      font-size: clamp(24px, 2.5vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.06em;
+      color: var(--text);
+    }
+
+    .metric .label {
+      margin-top: 0.5vh;
+      color: var(--muted);
+      font-size: clamp(11px, 1vw, 14px);
+      line-height: 1.35;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 1.2vw;
+      margin-top: 1.8vh;
+      height: 34vh;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.3vh 1.2vw;
+      min-height: 180px;
+    }
+
+    .panel strong {
+      display: block;
+      font-size: clamp(13px, 1.1vw, 17px);
+      margin-bottom: 0.9vh;
+      color: var(--brand);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .panel p, .panel li {
+      color: var(--muted);
+      font-size: clamp(14px, 1.15vw, 18px);
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .quote-box {
+      padding: 1.1vh 1.2vw;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--brand);
+      border-radius: 18px;
+      background: rgba(124,199,255,0.04);
+      margin-top: 1.5vh;
+    }
+
+    .quote-box p {
+      margin: 0;
+      font-size: clamp(16px, 1.5vw, 22px);
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .quote-box .who {
+      margin-top: 0.8vh;
+      color: var(--soft);
+      font-size: clamp(12px, 1vw, 14px);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.8vh;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 0.9vh 0.9vw;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--brand);
+      font-size: clamp(12px, 0.95vw, 15px);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(124,199,255,0.04);
+    }
+
+    td {
+      color: var(--muted);
+      font-size: clamp(13px, 1vw, 16px);
+      line-height: 1.5;
+    }
+
+    .slide[data-slide="1"] .content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2vw;
+      width: min(100%, 1200px);
+      margin: 3vh auto 0;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .choice-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 300px;
+      width: 100%;
+      padding: 2vh 1.6vw;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      opacity: 0.78;
+      transition: all 0.2s ease;
+    }
+
+    .choice-card.selected {
+      opacity: 1;
+      border-color: rgba(124,199,255,0.45);
+      background: linear-gradient(180deg, rgba(124,199,255,0.12), rgba(255,255,255,0.02));
+      box-shadow: 0 0 0 1px rgba(124,199,255,0.2), 0 20px 36px rgba(11, 16, 32, 0.32);
+      transform: translateY(-6px) scale(1.02);
+    }
+
+    .choice-card .badge {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 0.6vh 0.9vw;
+      font-size: clamp(11px, 0.9vw, 13px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--soft);
+    }
+
+    .choice-card.selected .badge {
+      background: rgba(124,199,255,0.12);
+      border-color: rgba(124,199,255,0.35);
+      color: var(--brand);
+    }
+
+    .choice-card h3 {
+      margin: 1.4vh 0 0.9vh;
+      font-size: clamp(28px, 2.2vw, 36px);
+      line-height: 1.2;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+
+    .choice-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 1.25vw, 20px);
+      line-height: 1.6;
+    }
+
+    .choice-card .meta {
+      margin-top: 1.3vh;
+      color: var(--soft);
+      font-size: clamp(14px, 1.1vw, 18px);
+      line-height: 1.5;
+    }
+
+    .choice-card.selected .meta strong {
+      color: var(--green);
+    }
+
+    .workflow-box {
+      margin-top: 1.2vh;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1vh 1vw 1.2vh;
+      box-shadow: inset 0 0 0 1px rgba(124,199,255,0.03);
+      min-height: 28vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .workflow-title {
+      display: block;
+      margin-bottom: 1vh;
+      color: var(--brand);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: clamp(18px, 1.5vw, 22px);
+    }
+
+    .workflow-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.25vw;
+      align-items: stretch;
+    }
+
+    .flow-card {
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      padding: 1vh 0.8vw 0.9vh;
+      min-height: 165px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .flow-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7vw;
+      margin-bottom: 0.8vh;
+      padding-top: 0.15vh;
+    }
+
+    .flow-card strong {
+      display: block;
+      font-size: clamp(18px, 1.55vw, 28px);
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-top: -0.1vh;
+    }
+
+    .flow-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(14px, 1.12vw, 18px);
+      line-height: 1.6;
+    }
+
+    .flow-card .stepno {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      background: rgba(124,199,255,0.12);
+      border: 1px solid rgba(124,199,255,0.18);
+      color: var(--brand);
+      font-size: 16px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .flow-card:nth-child(odd) {
+      background: rgba(124,199,255,0.04);
+      border-color: rgba(124,199,255,0.18);
+    }
+
+    .flow-card:nth-child(2n) {
+      background: rgba(255,209,102,0.04);
+      border-color: rgba(255,209,102,0.18);
+    }
+
+    .workflow-safe {
+      margin-top: 1.8vh;
+      background: rgba(255,209,102,0.08);
+      border: 1px solid rgba(255,209,102,0.22);
+      border-radius: 18px;
+      overflow: hidden;
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 12vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .workflow-safe .tag {
+      display: block;
+      color: var(--amber);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: clamp(16px, 1.3vw, 22px);
+      background: rgba(255,209,102,0.12);
+      border-bottom: 1px solid rgba(255,209,102,0.22);
+      padding: 0.8vh 0.9vw;
+    }
+
+    .workflow-safe .body {
+      display: block;
+      color: var(--muted);
+      font-size: clamp(12px, 0.95vw, 15px);
+      padding: 1vh 1.1vw;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9vw;
+      margin-top: 1.8vh;
+    }
+
+    .pill {
+      padding: 0.7vh 0.9vw;
+      border-radius: 999px;
+      background: rgba(124,199,255,0.08);
+      border: 1px solid rgba(124,199,255,0.2);
+      color: var(--text);
+      font-size: clamp(12px, 0.95vw, 14px);
+      font-weight: 600;
+    }
+
+    .mini {
+      display: inline-block;
+      font-size: clamp(11px, 0.9vw, 13px);
+      color: var(--soft);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.8vh;
+    }
+
+    .callout {
+      margin-top: 1.7vh;
+      background: rgba(255,209,102,0.08);
+      border: 1px solid rgba(255,209,102,0.22);
+      border-radius: 18px;
+      overflow: hidden;
+      color: var(--text);
+      font-size: clamp(15px, 1.2vw, 18px);
+      line-height: 1.5;
+    }
+
+    .callout .tag {
+      display: block;
+      color: var(--amber);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: clamp(18px, 1.5vw, 24px);
+      background: rgba(255,209,102,0.1);
+      border-bottom: 1px solid rgba(255,209,102,0.22);
+      padding: 0.8vh 0.9vw;
+    }
+
+    .callout .body {
+      padding: 1vh 1.1vw;
+      display: block;
+      color: var(--text);
+    }
+
+    .callout .body ul {
+      margin: 0.5vh 0 0;
+      padding-left: 1.25em;
+    }
+
+    .callout .body li {
+      margin: 0.35vh 0;
+      line-height: 1.55;
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1vw;
+      margin-top: 2vh;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2vh;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .result-table th,
+    .result-table td {
+      border: 1px solid var(--line);
+      padding: 0.9vh 0.9vw;
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(13px, 1vw, 16px);
+      line-height: 1.5;
+    }
+
+    .result-table th {
+      color: var(--text);
+      font-size: clamp(14px, 1.15vw, 18px);
+      font-weight: 700;
+      background: rgba(124,199,255,0.04);
+    }
+
+    .result-table td:first-child {
+      text-align: left;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .weakness-label {
+      display: block;
+      margin-top: 2.7vh;
+      color: var(--amber);
+      font-size: clamp(18px, 1.45vw, 24px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .weakness-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1vw;
+      margin-top: 1vh;
+    }
+
+    .weakness-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.1vh 1vw;
+      min-height: 12vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text);
+      font-size: clamp(17px, 1.35vw, 22px);
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.2vw;
+      margin-top: 2vh;
+      width: 82%;
+      margin-left: 0;
+      align-items: start;
+    }
+
+    .roadmap-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.4vh 1.2vw;
+      min-height: 20vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .roadmap-card strong {
+      display: block;
+      color: var(--brand);
+      font-size: clamp(24px, 1.9vw, 32px);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1vh;
+    }
+
+    .roadmap-card ul {
+      margin: 0;
+      padding-left: 1.1em;
+      color: var(--muted);
+      font-size: clamp(14px, 1.08vw, 18px);
+      line-height: 1.7;
+    }
+
+    .roadmap-card li + li {
+      margin-top: 0.5vh;
+    }
+
+    .check {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.1vh 1vw;
+    }
+
+    .check strong {
+      display: block;
+      color: var(--green);
+      font-size: clamp(12px, 0.9vw, 14px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.8vh;
+    }
+
+    .check p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: clamp(13px, 1vw, 15px);
+    }
+
+    .nav {
+      position: fixed;
+      right: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      border: 1px solid rgba(255,255,255,0.18);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dot.active {
+      background: var(--brand);
+      box-shadow: 0 0 12px rgba(124,199,255,0.9);
+      transform: scale(1.2);
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 12px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--soft);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 20;
+    }
+
+    .footer .key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 800px) {
+      .stats, .two-col, .checklist { grid-template-columns: 1fr; }
+      .nav { right: 12px; }
+      .shell { border-radius: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <div class="slide active" data-slide="0">
+      <div class="shell">
+        <div class="content">
+          <div class="eyebrow">VinMark - Học là mê</div>
+          <h1>User & Job</h1>
+          <div class="sub">Biến chỗ chưa hiểu thành quiz ôn tập đúng nguồn, đúng thời điểm.</div>
+
+          <div class="stats">
+            <div class="metric">
+              <div class="value">14/21</div>
+              <div class="label">ít khi sử dụng trợ giảng AI trong đó 11 người không dùng vì không có nhu cầu</div>
+            </div>
+            <div class="metric">
+              <div class="value">19/21</div>
+              <div class="label">cảm thấy khó tìm lại kiến thức cũ</div>
+            </div>
+            <div class="metric">
+              <div class="value">19/21</div>
+              <div class="label">sẵn sàng thử tính năng luyện tập mới</div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="panel">
+              <strong>Job executor</strong>
+              <p>Học viên đang học lý thuyết trên VLearn, vừa hỏi Tutor về một đoạn slide chưa hiểu.</p>
+              <div class="quote-box" style="margin-top: 1.3vh;">
+                <p>“tớ muốn ôn lại bài cũ day01”</p>
+                <div class="who">chatlog thực tế</div>
+              </div>
+            </div>
+            <div class="panel">
+              <strong>Core JTBD</strong>
+              <p>Tìm lại và ôn đúng phần kiến thức từng chưa hiểu sau buổi học để tiếp tục làm bài thực hành.</p>
+              <div class="quote-box" style="margin-top: 1.3vh;">
+                <p>“tóm tắt những nội dung chính core nhất để tôi ôn tập được chứ ?”</p>
+                <div class="who">chatlog thực tế</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top: 1.8vh; padding: 0; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.14);">
+            <span class="tag" style="color: var(--brand); background: transparent; border-bottom: none; padding: 1.1vh 1.1vw 0;">Problem Statement</span>
+            <span style="display:block; font-size: clamp(20px, 1.7vw, 28px); line-height:1.45; color: var(--text); font-weight:700; padding: 0.9vh 1.1vw 1.2vh;">
+              Sau khi hỏi bài, học viên khó tìm lại câu hỏi và đoạn kiến thức liên quan; họ phải dò chat từng slide hoặc chụp màn hình vào ghi chú rời, khiến việc ôn tập bị gián đoạn và giữ nguyên chỗ hổng khi làm lab.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="1">
+      <div class="shell">
+        <div class="content">
+          <div class="eyebrow">VinMark - Học là mê</div>
+          <h1>Vì sao chọn tính năng này</h1>
+
+          <div class="choice-grid">
+            <div class="choice-card">
+              <div class="badge">Bỏ</div>
+              <div>
+                <h3>Cải thiện Tutor tại chỗ</h3>
+                <p>18/21 biết về tính năng, nhưng không đồng nghĩa cần sửa ngay.</p>
+              </div>
+              <div class="meta"><strong>Bỏ:</strong> không giải quyết “quay lại sau buổi học”.</div>
+            </div>
+
+            <div class="choice-card selected">
+              <div class="badge">Chọn</div>
+              <div>
+                <h3><span class="highlight-green">Kho ôn có nguồn + quiz</span></h3>
+                <p>10/21 khó tìm lại kiến thức cũ; 19/21 sẵn sàng thử nếu có tính năng.</p>
+              </div>
+              <div class="meta"><strong>Giữ:</strong> khớp pain point “lấy lại đúng chỗ chưa hiểu”.</div>
+            </div>
+
+            <div class="choice-card">
+              <div class="badge">Bỏ</div>
+              <div>
+                <h3>Tổng hợp cả buổi</h3>
+                <p>Form không đo nhu cầu “tóm tắt cả buổi” trực tiếp.</p>
+              </div>
+              <div class="meta"><strong>Bỏ:</strong> quá rộng so với pain point thực tế.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="2">
+      <div class="shell">
+        <div class="content">
+          <div class="eyebrow">VinMark - Học là mê</div>
+          <h1>Giải pháp: Từ chỗ chưa hiểu đến ôn tập có căn cứ</h1>
+
+          <div class="callout" style="font-size: clamp(17px, 1.5vw, 24px); line-height: 1.45;">
+            <span class="tag">Lát cắt</span>
+            <span class="body">
+              <ul>
+                <li>Học viên đánh dấu hoặc hỏi về một đoạn slide khó hiểu.</li>
+                <li>Hệ thống kiểm tra ngữ cảnh và nguồn để xác định mức độ đủ căn cứ.</li>
+                <li>Nếu đủ nguồn, sinh quiz 3–10 câu để ôn đúng chỗ.</li>
+                <li>Nếu thiếu nguồn, hỏi lại hoặc yêu cầu nguồn bổ sung thay vì bịa đáp án.</li>
+              </ul>
+            </span>
+          </div>
+
+          <div class="workflow-box">
+            <span class="workflow-title">Workflow</span>
+            <div class="workflow-row">
+              <div class="flow-card">
+                <div class="flow-card-header">
+                  <span class="stepno">1</span>
+                  <strong>Học viên đánh dấu / hỏi</strong>
+                </div>
+                <p>Ngữ cảnh rõ và được lưu lại theo đoạn slide.</p>
+              </div>
+              <div class="flow-card">
+                <div class="flow-card-header">
+                  <span class="stepno">2</span>
+                  <strong>Kiểm tra nguồn</strong>
+                </div>
+                <p>Đoạn slide, transcript và ngữ cảnh được đối chiếu.</p>
+              </div>
+              <div class="flow-card">
+                <div class="flow-card-header">
+                  <span class="stepno">3</span>
+                  <strong>Ra quyết định AI</strong>
+                </div>
+                <p>Nếu đủ căn cứ → tạo quiz; nếu thiếu → hỏi lại / từ chối.</p>
+              </div>
+              <div class="flow-card">
+                <div class="flow-card-header">
+                  <span class="stepno">4</span>
+                  <strong>Ôn tập có gợi ý</strong>
+                </div>
+                <p>Đưa quiz đúng chỗ học viên đã bỏ lỡ để ôn tiếp.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <span class="tag">why this is safe</span>
+            <span class="body">Chi phí sai cao khi AI bịa nội dung, thiếu nguồn, hoặc gắn quiz vào slide sai. Vì vậy hệ thống chỉ tạo khi đủ căn cứ, còn lại phải hỏi thêm hoặc từ chối.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="3">
+      <div class="shell">
+        <div class="content">
+          <div class="eyebrow">VinMark - Học là mê</div>
+          <h1>Kết quả đo</h1>
+
+          <div class="stats">
+            <div class="metric">
+              <div class="value">19/26</div>
+              <div class="label">Test cases trả lời đạt chuẩn trong Golden Set</div>
+            </div>
+          </div>
+
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>Lớp chỗ khó</th>
+                <th>Số case</th>
+                <th>Đạt</th>
+                <th>Không đạt</th>
+                <th>Tỷ lệ đạt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nguồn sự thậth</td>
+                <td>3</td>
+                <td>3</td>
+                <td>0</td>
+                <td>100.0%</td>
+              </tr>
+              <tr>
+                <td>Câu hỏi mơ hồ</td>
+                <td>4</td>
+                <td>3</td>
+                <td>1</td>
+                <td>75.0%</td>
+              </tr>
+              <tr>
+                <td>Ngoài phạm vi</td>
+                <td>3</td>
+                <td>2</td>
+                <td>1</td>
+                <td>66.7%</td>
+              </tr>
+              <tr>
+                <td>Đặc thù domain</td>
+                <td>3</td>
+                <td>2</td>
+                <td>1</td>
+                <td>66.7%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <span class="weakness-label">Điểm yếu</span>
+          <div class="weakness-grid">
+            <div class="weakness-box">CÂU HỎI MƠ HỒ</div>
+            <div class="weakness-box">CÂU HỎI NGOÀI PHẠM VI</div>
+            <div class="weakness-box">ĐẶC THÙ DOMAIN</div>
+          </div>
+
+          <div class="callout">
+            <span class="tag">Nguyên nhân chính</span>
+            <span class="body">
+              <ul>
+                <li>Điểm yếu 1: Chưa xác định đầy đủ constraints cho LLM</li>
+                <li>Điểm yếu 2: Thiếu mô tả rõ ràng các trường hợp LLM cần hỏi lại người dùng</li>
+              </ul>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="4">
+      <div class="shell">
+        <div class="content">
+          <div class="eyebrow">VinMark - Học là mê</div>
+          <h1>User thật nói gì</h1>
+
+          <div class="user-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:1vw; margin-top:2vh; align-items:stretch; height: 56vh;">
+            <div class="quote-box" style="height:100%; margin-top:0; min-height: 100%; display:flex; flex-direction:column; justify-content:space-between; padding: 2vh 1.6vw; border-left: 4px solid var(--brand); gap: 1.1vh;">
+              <div style="display:flex; flex-direction:column; gap:0.6vh; justify-content:space-between; flex:1;">
+                <p style="margin:0; font-size: clamp(23px, 2vw, 32px); line-height:1.5; color: var(--text); font-style: italic;">“UI chỗ preview slide hơi khó hiểu với làm hoang mang người dùng khi không rõ chức năng lưu slide ở đâu. Chưa có phần quiz theo bài.”</p>
+                <div class="who" style="margin-top:0; line-height:1;">User 1</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:1.45vh; margin-top:0.8vh;">
+                <div>
+                  <strong style="color: var(--brand); font-size: clamp(15px, 1.15vw, 18px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.45vh;">Task đã giao</strong>
+                  <span style="color: var(--muted); font-size: clamp(15px, 1.18vw, 20px); line-height:1.6;">Kiểm tra workflow đánh giá kiến thức khó hiểu, ôn tập và luyện tập bằng quiz.</span>
+                </div>
+                <div>
+                  <strong style="color: var(--brand); font-size: clamp(15px, 1.15vw, 18px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.45vh;">Quan sát</strong>
+                  <span style="color: var(--muted); font-size: clamp(15px, 1.18vw, 20px); line-height:1.6;">UI còn khó sử dụng, chưa có quiz tổng hợp cả bài, chỉ có quiz theo slide đã đánh dấu.</span>
+                </div>
+                <div>
+                  <strong style="color: var(--brand); font-size: clamp(15px, 1.15vw, 18px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.45vh;">Mức nghiêm trọng</strong>
+                  <span style="color: var(--muted); font-size: clamp(15px, 1.18vw, 20px); line-height:1.6;">Trung bình.</span>
+                </div>
+              </div>
+            </div>
+            <div class="quote-box" style="height:100%; margin-top:0; min-height: 100%; display:flex; flex-direction:column; justify-content:space-between; padding: 2vh 1.6vw; border-left: 4px solid var(--brand); background: rgba(124,199,255,0.04); gap: 1.1vh;">
+              <div style="display:flex; flex-direction:column; gap:0.6vh; justify-content:space-between; flex:1;">
+                <p style="margin:0; font-size: clamp(23px, 2vw, 32px); line-height:1.5; color: var(--text); font-style: italic;">“UI chỗ preview slide hơi khó hiểu với làm hoang mang người dùng khi không rõ chức năng lưu slide ở đâu. Chưa có phần quiz theo bài.”</p>
+                <div class="who" style="margin-top:0; line-height:1;">User 1</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:1.45vh; margin-top:0.8vh;">
+                <div>
+                  <strong style="color: var(--brand); font-size: clamp(15px, 1.15vw, 18px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.45vh;">Task đã giao</strong>
+                  <span style="color: var(--muted); font-size: clamp(15px, 1.18vw, 20px); line-height:1.6;">Kiểm tra workflow đánh giá kiến thức khó hiểu, ôn tập và luyện tập bằng quiz.</span>
+                </div>
+                <div>
+                  <strong style="color: var(--brand); font-size: clamp(15px, 1.15vw, 18px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.45vh;">Quan sát</strong>
+                  <span style="color: var(--muted); font-size: clamp(15px, 1.18vw, 20px); line-height:1.6;">UI còn khó sử dụng, chưa có quiz tổng hợp cả bài, chỉ có quiz theo slide đã đánh dấu.</span>
+                </div>
+                <div>
+                  <strong style="color: var(--brand); font-size: clamp(15px, 1.15vw, 18px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.45vh;">Mức nghiêm trọng</strong>
+                  <span style="color: var(--muted); font-size: clamp(15px, 1.18vw, 20px); line-height:1.6;">Trung bình.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+                <!-- <div>
+                  <strong style="color: var(--brand); font-size: clamp(13px, 1vw, 15px); text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom:0.4vh;">Mức nghiêm trọng</strong>
+                  <span style="color: var(--muted); font-size: clamp(14px, 1.08vw, 18px); line-height:1.6;">Trung bình.</span>
+                </div> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="5">
+      <div class="shell">
+        <div class="content">
+          <div class="eyebrow">VinMark - Học là mê</div>
+          <h1>Hướng phát triển</h1>
+
+          <div class="roadmap-grid" style="margin-left: 0; max-width: 82%;">
+            <div class="roadmap-card">
+              <strong>1. Cải thiện Agent</strong>
+              <ul>
+                <li>Cải thiện điểm yếu hiện tại, bổ sung nhiều test case để kiểm tra model trong các tình huống khác nhau.</li>
+              </ul>
+            </div>
+            <div class="roadmap-card">
+              <strong>2. Cải thiện UI</strong>
+              <ul>
+                <li>Hiển thị Slide rõ ràng hơn để người dùng dễ theo dõi.</li>
+                <li>Tóm tắt nội dung ôn tập để người học nắm nhanh trọng tâm.</li>
+              </ul>
+            </div>
+            <div class="roadmap-card">
+              <strong>3. Lên plan ôn tập kiến thức</strong>
+              <ul>
+                <li>Tham khảo phương pháp học chuẩn để thiết kế lộ trình ôn tập hiệu quả.</li>
+                <li>Ôn tập kiến thức theo vòng lặp phù hợp, ví dụ theo các mốc 2, 3, 5 ngày.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav" aria-label="slide navigation">
+    <div class="dot active" data-index="0" title="Slide 1"></div>
+    <div class="dot" data-index="1" title="Slide 2"></div>
+    <div class="dot" data-index="2" title="Slide 3"></div>
+    <div class="dot" data-index="3" title="Slide 4"></div>
+    <div class="dot" data-index="4" title="Slide 5"></div>
+    <div class="dot" data-index="5" title="Slide 6"></div>
+  </div>
+
+  <div class="footer">
+    <div>VinMark</div>
+    <div class="key">← → navigate</div>
+  </div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const dots = [...document.querySelectorAll('.dot')];
+    let current = 0;
+
+    function showSlide(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === current));
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        showSlide(current + 1);
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        showSlide(current - 1);
+      }
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => showSlide(Number(dot.dataset.index)));
+    });
+  </script>
+</body>
+</html>
