@@ -7,6 +7,17 @@ function text(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+// Models often quote a clause with changed case or edge punctuation ("…tìm kiếm," → "Query là … tìm kiếm.").
+// Compare ignoring those, but the quoted words must still appear verbatim in the source.
+function comparable(value) {
+  return text(value).toLowerCase().replace(/\s+/g, ' ').replace(/^[\s"'“”‘’\-–•.,;:!?]+|[\s"'“”‘’\-–•.,;:!?]+$/g, '');
+}
+
+function quoteMatchesSource(quote, sourceText) {
+  const needle = comparable(quote);
+  return Boolean(needle) && comparable(sourceText).includes(needle);
+}
+
 function validateQuizResponse(response, sources) {
   const errors = [];
   const sourceMap = new Map((Array.isArray(sources) ? sources : []).map(source => [source.sourceId, source]));
@@ -42,7 +53,7 @@ function validateQuizResponse(response, sources) {
     if (!text(question?.explanation)) errors.push(`questions[${index}].explanation is required`);
     if (!sourceMap.has(question?.sourceId)) errors.push(`questions[${index}].sourceId is unknown`);
     const source = sourceMap.get(question?.sourceId);
-    if (!text(question?.evidenceQuote) || !source?.text?.includes(question.evidenceQuote)) {
+    if (!quoteMatchesSource(question?.evidenceQuote, source?.text)) {
       errors.push(`questions[${index}].evidenceQuote must match its source`);
     }
   }

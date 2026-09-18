@@ -4,8 +4,10 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const { URL } = require('node:url');
-const { MIN_QUESTIONS, MAX_QUESTIONS, validateQuizResponse } = require('./quiz-contract');
-const { callModel } = require('./model');
+const { MIN_QUESTIONS, MAX_QUESTIONS } = require('./quiz-contract');
+const { decideQuiz } = require('../codebase/decision');
+const { keyEnvFor } = require('../codebase/llm');
+const { callTutor, validateTutorRequest } = require('./tutor');
 
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_ROOT = path.join(ROOT, 'mockup');
@@ -16,6 +18,8 @@ const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.jpg': 'image/jpeg',
+  '.png': 'image/png',
   '.svg': 'image/svg+xml'
 };
 
@@ -31,6 +35,24 @@ function errorResponse(code, message, retryable = false) {
 function sourceFor(ref) {
   const sourceId = typeof ref === 'string' ? ref : ref?.sourceId;
   return SOURCES.find(source => source.sourceId === sourceId) || null;
+}
+
+// Slide + tutor conversation sent by the client for items saved from chat.
+// It is not a curated source, so allowlisted sources always take precedence.
+function inlineSourceFor(request) {
+  const inline = request.slideSource;
+  if (typeof inline?.text !== 'string' || !inline.text.trim() || inline.text.length > 12000) return null;
+  return {
+    sourceId: `slide:${String(request.itemId).slice(0, 80)}`,
+    sourceVersion: 'slide-chat-v1',
+    title: typeof inline.title === 'string' ? inline.title.slice(0, 300) : 'Slide',
+    text: inline.text,
+    statements: []
+  };
+}
+
+function providerKeyName() {
+  return keyEnvFor((process.env.LLM_PROVIDER || 'gemini').toLowerCase());
 }
 
 function chooseQuestionCount(source, previousAttempt) {
@@ -100,14 +122,6 @@ function serveStatic(req, res) {
   fs.createReadStream(file).pipe(res);
 }
 
-function saveTrace(trace) {
-  const directory = process.env.VINMARK_TRACE_DIR;
-  if (!directory) return;
-  fs.mkdirSync(directory, { recursive: true });
-  const filename = `trace-${Date.now()}-${trace.itemId}.json`;
-  fs.writeFileSync(path.join(directory, filename), JSON.stringify(trace, null, 2));
-}
-
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (req.method === 'GET' && url.pathname === '/api/health') return json(res, 200, { ok: true, mode: 'curated-demo' });
@@ -118,27 +132,43 @@ const server = http.createServer(async (req, res) => {
     try {
       const request = await parseJsonBody(req);
       if (!request.itemId || !Number.isInteger(request.revision)) return json(res, 400, errorResponse('invalid_request', 'itemId và revision là bắt buộc.'));
-      const source = sourceFor(request.sourceRef);
-      if (!source) return json(res, 200, { status: 'needs_context', itemId: request.itemId, revision: request.revision, reason: 'Không tìm thấy nguồn đã được duyệt.', nextAction: 'Chọn một nguồn trong danh sách cho phép.' });
-      let response;
-      const provider = (process.env.LLM_PROVIDER || 'gemini').toLowerCase();
-      const hasKey = provider === 'nim' ? process.env.NVIDIA_NIM_API_KEY : provider === 'deepseek' ? process.env.DEEPSEEK_API_KEY : process.env.GEMINI_API_KEY;
-      if (hasKey) {
-        const result = await callModel(request, source);
-        response = result.response;
-        saveTrace(result.trace);
-      } else if (process.env.VINMARK_DEMO_MODE === 'true') {
-        response = buildQuiz(request, source);
-      } else {
-        return json(res, 503, errorResponse('missing_api_key', 'GEMINI_API_KEY chưa được cấu hình; không dùng fixture fallback.', false));
+      const sourceRef = typeof request.sourceRef === 'string' ? request.sourceRef : request.sourceRef?.sourceId;
+      if (!process.env[providerKeyName()]) {
+        const curated = sourceFor(sourceRef);
+        if (process.env.VINMARK_DEMO_MODE === 'true' && curated) return json(res, 200, buildQuiz(request, curated));
+        return json(res, 503, errorResponse('missing_api_key', `${providerKeyName()} chưa được cấu hình; không dùng fixture fallback.`, false));
       }
-      if (response.status === 'ready') {
-        const checked = validateQuizResponse(response, [source]);
-        if (!checked.ok) return json(res, 502, errorResponse('invalid_generated_quiz', checked.errors.join('; '), true));
-      }
+      const { response, trace } = await decideQuiz({
+        itemId: request.itemId, revision: request.revision, sourceRef,
+        source: /^d[12]:/i.test(sourceRef || '') || sourceFor(sourceRef) ? undefined : inlineSourceFor(request) || undefined,
+        learnerQuestions: request.learnerQuestions, mode: request.mode, previousAttempt: request.previousAttempt
+      });
+      console.log(`[quiz] ${request.itemId} ${trace.sourceId || sourceRef || '-'} → ${response.status} (${trace.traceId})`);
+      if (response.status === 'error') return json(res, 502, errorResponse(response.code, response.message, true));
       return json(res, 200, response);
     } catch (error) {
-      const code = error.code || 'gemini_error';
+      console.error('[quiz]', error.code || '', error.message, error.traceId || '');
+      const code = error.code || 'decision_error';
+      const status = code === 'invalid_json' ? 400 : code === 'missing_api_key' ? 503 : 502;
+      return json(res, status, errorResponse(code, error.message, code !== 'missing_api_key'));
+    }
+  }
+  if (req.method === 'POST' && url.pathname === '/api/chat') {
+    try {
+      const checked = validateTutorRequest(await parseJsonBody(req));
+      if (checked.error) return json(res, 400, errorResponse('invalid_request', checked.error));
+      const { slide } = checked.value;
+      if (process.env[providerKeyName()]) {
+        const result = await callTutor(checked.value);
+        return json(res, 200, { status: 'ok', answer: result.answer, grounded: result.grounded });
+      }
+      if (process.env.VINMARK_DEMO_MODE === 'true') {
+        return json(res, 200, { status: 'ok', answer: `Minh họa từ slide hiện tại: ${slide.bullets.join(' ')} Đây là phần nhắc lại nguồn, chưa phải câu trả lời từ AI thật.`, grounded: true, demo: true });
+      }
+      return json(res, 503, errorResponse('missing_api_key', `${providerKeyName()} chưa được cấu hình.`, false));
+    } catch (error) {
+      console.error('[chat]', error.code || '', error.message);
+      const code = error.code || 'tutor_error';
       const status = code === 'invalid_json' ? 400 : code === 'missing_api_key' ? 503 : 502;
       return json(res, status, errorResponse(code, error.message, code !== 'missing_api_key'));
     }

@@ -7,3 +7,14 @@ __pycache__/
 
 # Course datasets and derived private data: never publish with the submission.
 /data/local/
+
+# Local API key script
+bash.sh
+mockup/slides/
+# Decision/tutor traces (learner questions + course text)
+logs/
+
+# Course slides (data rule) - rebuild with: node codebase/build-slides.cjs
+/d1-slide-hackathon.pdf
+/d2-slide-hackathon.pdf
+mockup/slides/
