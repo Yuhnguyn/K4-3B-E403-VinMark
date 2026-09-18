@@ -50,42 +50,35 @@ Một số sản phẩm như Khanmigo, StudyFetch và Gemini Notebook đã giả
 
 ## §4. Thiết kế
 
-**Lát cắt theo canvas:** Học viên vừa hỏi Tutor về hoặc đánh dấu một slide · cần ôn lại đúng chỗ đó vài ngày sau · AI quyết định slide có đủ ngữ cảnh để sinh quiz hay không và chọn 3–10 câu phù hợp · nhận quiz trắc nghiệm kèm giải thích trong kho ôn.
+- Lát cắt MỘT CÂU (1 user · 1 việc · 1 quyết định AI · 1 kết quả):
+  Học viên vừa đánh dấu hoặc hỏi về một đoạn slide khó hiểu trong buổi học · hệ thống cần quyết định xem đoạn đó có đủ ngữ cảnh để tạo quiz ôn tập không · nếu đủ, sinh bộ quiz 3–10 câu theo đúng nguồn đã lưu; nếu thiếu, hỏi lại hoặc yêu cầu nguồn bổ sung thay vì bịa đáp án.
 
-**Quyết định AI trung tâm:** nguồn có đủ căn cứ tạo số câu phù hợp trong khoảng 3–10 không? Có → tạo số câu AI chọn, mỗi câu có giải thích/dẫn nguồn. Chưa đủ → hỏi làm rõ/yêu cầu nguồn. Ứng dụng tính lịch nhắc bằng code.
+- Non-goals (≥3 thứ KHÔNG build):
+  1. Không tạo chatbot tổng quát cho toàn khóa học.
+  2. Không quét hoặc tổng hợp cả buổi học thành một “AI tutor toàn bộ”.
+  3. Không tính điểm/đánh giá chính thức hay thay thế bài thi của khóa.
+  4. Không tự động tạo quiz khi thiếu ngữ cảnh mà không hỏi lại / không báo lỗi rõ ràng.
 
-**Automation: conditional.** Quiz sai khiến học viên ôn sai; nguồn thiếu phải bị chặn. Kiểm tra citation không chứng minh kiến thức đúng, cần người đối chiếu output đánh giá và có cơ chế báo câu sai.
+- Mức prototype nhắm tới: [ ] Sketch [x] Mock [ ] Working — phần nào mock, phần nào thật:
+  - Mock: flow UI lưu câu hỏi/đánh dấu, tạo quiz từ nguồn, xem lại kết quả, nhắc ôn +1/+3 ngày.
+  - Thật: backend AI/validator có thể gọi model, kiểm tra ngữ cảnh, sinh/cấu trúc output; log và trace dùng cho eval.
+  - Chưa thật đầy đủ: chưa có end-to-end production trên toàn bộ nguồn học, và chưa hoàn toàn chốt quality bar ở mức sản phẩm.
 
-**Hiện tại:** UI tương tác được, có endpoint Gemini/NIM/DeepSeek, validator và runner trace/eval. Đã chạy DeepSeek lượt 1 trên 20 ca: 14/20 pass; chưa đạt quality bar đề xuất. **Mục tiêu:** chỉ khai Working khi thực sự chạy end-to-end trên pack đã curate đầy đủ.
+- Automation: [ ] augment [x] conditional [ ] automate — lý do theo cost-of-error:
+  - Đây là automation kiểu conditional vì chi phí sai ở mức cao: nếu không có đủ ngữ cảnh, hệ thống phải dừng và nhờ người dùng bổ sung nguồn, thay vì sinh quiz sai.
+  - Cost-of-error cao khi AI bịa nội dung, thiếu nguồn, hoặc gắn quiz vào slide sai; vì vậy quyết định AI phải là “tạo / hỏi lại / từ chối”, không phải “luôn cố làm”.
+  - Trong phạm vi này, mô hình giúp giảm thao tác, nhưng không được tự động hành động khi có bất kỳ dấu hiệu thiếu căn cứ nào.
 
-**Non-goals:** không quét toàn khóa, không chatbot mới, không đăng nhập/đồng bộ, không tự luận hoặc chấm điểm chính thức, không vector database/multi-agent trong sản phẩm. Nhắc showcase đề xuất hiển thị trong app khi mở lại; không coi đó là email/push.
+### §4b. Nguyên tắc đã áp dụng (≥4 — HAX/PAIR, xem guide)
 
-### Quy tắc MVP
-
-1. Lưu câu hỏi/đánh dấu kèm khóa, bài, tài liệu, trang/đoạn và thời điểm. Cùng vị trí nguồn gom một mục; thao tác lặp không tạo trùng.
-2. Luyện tập nhóm theo buổi; mở mục thấy câu hỏi, tóm tắt và nguồn.
-3. Chưa có quiz, đầu vào thay đổi hoặc yêu cầu ôn lại sau khi chưa đạt → kiểm tra nguồn và tạo bộ mới. Có bộ hợp lệ cùng phiên bản → dùng lại.
-4. Mỗi bộ có **3–10 câu**, số câu do AI chọn theo độ rộng nguồn; mỗi câu có bốn lựa chọn, một đáp án đúng, giải thích và tham chiếu. Không đủ căn cứ cho số câu đã chọn hoặc không tạo được câu không trùng → yêu cầu thêm ngữ cảnh, không bịa thêm.
-5. Trả lời hết rồi nộp; sau nộp mới hiện đáp án. Chấm bằng code.
-6. **Ngưỡng học viên đề xuất:** đạt khi `correct / total >= 0.8`, tương đương `ceil(80% × total)` câu đúng; 3 câu cần 3/3, 5 câu cần 4/5, 10 câu cần 8/10. Canvas chưa quy định ngưỡng, nhóm cần chốt. Đây không phải quality bar của AI.
-7. Đạt → Đã ôn đạt, dừng nhắc, giữ lịch sử. Chưa đạt → xem ý sai/nguồn, chủ động ôn tiếp. Bộ mới giữ số câu và phạm vi của bộ đầu trong cùng phiên bản, ưu tiên hỏi khác về ý sai; chấm mỗi lượt riêng.
-8. Câu hỏi/nguồn mới → tăng phiên bản, giữ kết quả cũ, trở lại Cần ôn. Không để phản hồi cũ ghi đè phiên bản mới.
-9. Nhắc **đề xuất opt-in trong app**: hạn +1/+3 ngày từ lúc lưu/cập nhật; chưa đạt giữ hạn, sau +3 hiển thị quá hạn; đạt hoặc tắt nhắc thì dừng. Không cần model tính ngày.
-
-Nguồn chưa ánh xạ được PDF thì mở transcript theo mã đoạn. Trong data, K4P1/D03 là DAY02; dùng cả course và bảng ánh xạ bài. Pack ở data/local/hackathon-context/data/vlearn-pack/, đã bị Git bỏ qua.
-
-### §4b. HAX/PAIR và vị trí áp dụng dự kiến
-
-| Nguyên tắc | Vị trí |
+| Nguyên tắc | Áp cụ thể vào đâu trong prototype |
 |---|---|
-| G1: phạm vi | Đầu trang nói rõ ôn theo phần đã lưu, Tutor mô phỏng |
-| G2: giới hạn | Quiz ghi luyện tập, không tính điểm khóa học; không gọi điểm là mức thành thạo |
-| G10: thu hẹp | Thiếu nguồn → hỏi lại một câu/chọn nguồn |
-| G11: giải thích | Kết quả mỗi câu có giải thích và nút mở nguồn |
-| G9/G15: sửa/phản hồi | Báo câu sai, sửa câu hỏi/chọn nguồn, tạo lại và giữ feedback |
-| PAIR: kiểm soát | Thoát quiz, tắt nhắc, không tự bắt đầu lượt tiếp theo |
-
-Đây là tiêu chí triển khai; chưa khẳng định toàn bộ đã có trong mockup.
+| G1: phạm vi | Chỉ làm với một đoạn slide/chỗ chưa hiểu đã lưu; không mở rộng thành “AI tổng hợp cả buổi học” |
+| G2: giới hạn | Quiz chỉ là luyện tập, không thay thế điểm/chấm thi chính thức; hiển thị rõ trong UI |
+| G10: thu hẹp | Nếu thiếu nguồn hoặc ngữ cảnh, app hỏi lại một câu ngắn hoặc yêu cầu chọn đúng slide/đoạn trước khi tạo câu hỏi |
+| G11: giải thích | Mỗi câu hỏi có giải thích và nút mở nguồn để người học kiểm tra căn cứ |
+| G9/G15: sửa/phản hồi | Người dùng có thể báo câu sai, thay đổi nguồn, tạo lại phiên bản mới, giữ lịch sử cũ để tránh ghi đè |
+| PAIR: kiểm soát | Người dùng có thể thoát quiz, tắt nhắc, hoặc chọn không tiếp tục; không có hành vi tự kích hoạt nhắc vô hạn |
 
 ## §5. Kiểu lỗi — bốn lớp, tám kịch bản
 
