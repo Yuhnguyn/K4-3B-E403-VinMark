@@ -13,6 +13,6 @@ Chatlog dùng để tìm nhu cầu ôn và tạo ca kiểm thử. Slide/transcri
 
 Chỉ sử dụng trong hackathon. Không đưa nguyên pack lên repo công khai, không đặt dữ liệu vào thư mục mockup được phát hành. Golden set công khai ưu tiên dẫn `turn_id` hoặc mã đoạn; chỉ trích ngắn khi cần. Khi gọi dịch vụ AI ngoài, chỉ gửi phần tối thiểu cần thiết. Quy tắc đầy đủ nằm trong README của pack.
 
-Bản sao này chưa được tích hợp vào mockup hay gửi đến API AI; đây là bước chuẩn bị dữ liệu cục bộ cho CP3.
+Bản sao slide Day 1/Day 2 được mockup đọc qua các endpoint local `/api/vlearn-slides` và `/api/vlearn-pdf`; PDF được hiển thị trong viewer khi chạy bằng `node server/server.js`, còn JSON cung cấp text cho chat/quiz. Dữ liệu này chưa được gửi đến API AI.
 
 Kết quả đọc và giới hạn dữ liệu: [HACKATHON_CONTEXT.md](../HACKATHON_CONTEXT.md).

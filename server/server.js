@@ -12,6 +12,14 @@ const { callTutor, validateTutorRequest } = require('./tutor');
 const ROOT = path.resolve(__dirname, '..');
 const PUBLIC_ROOT = path.join(ROOT, 'mockup');
 const SOURCES = JSON.parse(fs.readFileSync(path.join(__dirname, 'sources.json'), 'utf8'));
+const VLEARN_SLIDE_FILES = {
+  1: path.join(ROOT, 'data', 'd1-slide-hackathon.json'),
+  2: path.join(ROOT, 'data', 'd2-slide-hackathon.json')
+};
+const VLEARN_PDF_FILES = {
+  1: path.join(ROOT, 'data', 'd1-slide-hackathon.pdf'),
+  2: path.join(ROOT, 'data', 'd2-slide-hackathon.pdf')
+};
 const PORT = Number(process.env.PORT || 3000);
 const MIME = {
   '.css': 'text/css; charset=utf-8',
@@ -37,6 +45,7 @@ function sourceFor(ref) {
   return SOURCES.find(source => source.sourceId === sourceId) || null;
 }
 
+<<<<<<< HEAD
 // Slide + tutor conversation sent by the client for items saved from chat.
 // It is not a curated source, so allowlisted sources always take precedence.
 function inlineSourceFor(request) {
@@ -53,6 +62,12 @@ function inlineSourceFor(request) {
 
 function providerKeyName() {
   return keyEnvFor((process.env.LLM_PROVIDER || 'gemini').toLowerCase());
+=======
+function vlearnSlidesFor(day) {
+  const file = VLEARN_SLIDE_FILES[day];
+  if (!file || !fs.existsSync(file)) return null;
+  return JSON.parse(fs.readFileSync(file, 'utf8'));
+>>>>>>> 4ac626809382a9dfa0209dd0b73280f74ca07e16
 }
 
 function chooseQuestionCount(source, previousAttempt) {
@@ -127,6 +142,31 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && url.pathname === '/api/health') return json(res, 200, { ok: true, mode: 'curated-demo' });
   if (req.method === 'GET' && url.pathname === '/api/sources') {
     return json(res, 200, SOURCES.map(({ text, statements, ...source }) => source));
+  }
+  if (req.method === 'GET' && url.pathname === '/api/vlearn-slides') {
+    const day = Number(url.searchParams.get('day'));
+    if (!Number.isInteger(day) || !VLEARN_SLIDE_FILES[day]) {
+      return json(res, 400, { error: 'day must be 1 or 2' });
+    }
+    try {
+      const pack = vlearnSlidesFor(day);
+      if (!pack) return json(res, 404, { error: 'slide data not found' });
+      return json(res, 200, pack);
+    } catch (error) {
+      return json(res, 500, { error: `cannot read slide data: ${error.message}` });
+    }
+  }
+  if (req.method === 'GET' && url.pathname === '/api/vlearn-pdf') {
+    const day = Number(url.searchParams.get('day'));
+    const file = VLEARN_PDF_FILES[day];
+    if (!Number.isInteger(day) || !file) return json(res, 400, { error: 'day must be 1 or 2' });
+    if (!fs.existsSync(file)) return json(res, 404, { error: 'PDF not found' });
+    res.writeHead(200, {
+      'content-type': 'application/pdf',
+      'content-disposition': 'inline',
+      'cache-control': 'public, max-age=3600'
+    });
+    return fs.createReadStream(file).pipe(res);
   }
   if (req.method === 'POST' && url.pathname === '/api/quiz') {
     try {

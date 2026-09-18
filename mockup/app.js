@@ -28,7 +28,13 @@ const ATTENTION = [
  ['Những thành phần nào tham gia vào attention?',['Query, key và value','Chỉ tên người dùng','Chỉ token cuối','Chỉ độ dài câu'],0,'Query, key và value là các thành phần trong phép tính attention.'],
  ['Vì sao một từ cần được xét trong ngữ cảnh?',['Nghĩa của từ có thể phụ thuộc các từ xung quanh','Mọi từ luôn có một nghĩa','Để bỏ qua câu trước','Để không cần token'],0,'Ngữ cảnh cung cấp thông tin liên quan để diễn giải token.']
 ];
+<<<<<<< HEAD
 const referenceMap = {'1':{lesson:3,material:'main',page:12},'2':{lesson:3,material:'main',page:18},'3':{lesson:2,material:'main',page:17},'4':{lesson:2,material:'main',page:27},'5':{lesson:1,material:'main',page:15},'6':{lesson:1,material:'main',page:12}};
+=======
+const referenceMap = {'1':{lesson:3,material:'main',page:12},'2':{lesson:3,material:'main',page:18},'3':{lesson:2,material:'main',page:25},'4':{lesson:2,material:'main',page:21},'5':{lesson:1,material:'main',page:9},'6':{lesson:1,material:'main',page:15}};
+const realSlidesByDay = {};
+const realSlidePacks = {};
+>>>>>>> 4ac626809382a9dfa0209dd0b73280f74ca07e16
 const topics = seed.map(x=>{
   const prior=progress.get(x.id);
   return {...structuredClone(x),ref:{course:'k4',...referenceMap[x.id]},status:prior?.status||x.status,
@@ -52,16 +58,37 @@ const lessonNames={1:'Day01 · Foundation',2:'Day02 · Xác định bài toán A
 const coursesData=[{id:'k4',code:'K4P1',name:'L3-L4 - Khóa 4 Phase 1',days:[1,2,3,4,16,5,6]}, {id:'k3',code:'COMP2010',name:'Khoá 3 Phase 1',days:[1,2,3]}];
 const materials=day=>[
   {id:'intro',name:`material_day${String(day).padStart(2,'0')}_overview`},
-  {id:'main',name:`day${String(day).padStart(2,'0')}-slide-v2-blue`},
+  {id:'main',name:realSlidePacks[day]?.file_title||`day${String(day).padStart(2,'0')}-slide-v2-blue`},
   {id:'notes',name:'Tài liệu bổ sung · Các khái niệm chính'},
   {id:'foundation',name:`day${String(day).padStart(2,'0')}-foundation`},
   {id:'examples',name:'Ví dụ và tình huống thực hành'}
 ];
 const baseSlide=(page,title,bullets,kind='text')=>({page,title,bullets,kind});
+<<<<<<< HEAD
 const pdfSlides=day=>typeof PDF_SLIDES==='object'?PDF_SLIDES[day]:null;
 function slidesFor(ref){
   const day=ref.lesson;
   if(ref.material==='main'&&pdfSlides(day)) return pdfSlides(day).map(s=>({...s,kind:'pdf',topicId:topics.find(t=>referenceMap[t.id]&&t.ref.lesson===day&&t.ref.page===s.page)?.id}));
+=======
+function contentBullets(content){
+  const text=String(content||'').replace(/\s+/g,' ').trim();
+  if(!text)return ['Slide không có phần văn bản.'];
+  const explicit=text.split(/\s*•\s*/).map(x=>x.trim()).filter(Boolean);
+  if(explicit.length>1)return explicit;
+  const sentences=(text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[]).map(x=>x.trim()).filter(Boolean);
+  return sentences.length>1?sentences:[text];
+}
+function realSlides(pack,day){
+  return (pack?.slides||[]).map(slide=>({
+    page:Number(slide.slide_number),title:slide.slide_title,content:slide.content,
+    pdfPage:day===1&&Number(slide.slide_number)===3?null:day===1&&Number(slide.slide_number)>3?Number(slide.slide_number)-1:Number(slide.slide_number),
+    bullets:contentBullets(slide.content),kind:'real',day,sourceFile:pack.file_name
+  }));
+}
+function slidesFor(ref){
+  const day=ref.lesson;
+  if(ref.course==='k4'&&ref.material==='main'&&realSlidesByDay[day]?.length)return realSlidesByDay[day];
+>>>>>>> 4ac626809382a9dfa0209dd0b73280f74ca07e16
   const intro=baseSlide(1,day===1?'AI & LLM Foundation':lessonNames[day].split(' · ').slice(1).join(' · ')||'Mini Hackathon', ['Hiểu khái niệm cốt lõi','Kết nối kiến thức với tình huống thực tế','Lưu điều cần ôn cùng VinMark'],'cover');
   const dayTopics=topics.filter(x=>referenceMap[x.id]&&x.ref.lesson===day).map(x=>({...baseSlide(x.ref.page,x.title,[...x.summary]),topicId:x.id}));
   let result=[intro,baseSlide(3,'Agenda',['Khái niệm và bối cảnh','Ví dụ trong thực tế','Thảo luận và ôn tập'])];
@@ -77,6 +104,9 @@ function slidesFor(ref){
 const refKey=r=>`${r.course}:${r.lesson}:${r.material}:${r.page}`;
 const currentSlide=()=>slidesFor(S.ref).find(s=>s.page===S.ref.page)||slidesFor(S.ref)[0];
 const materialName=r=>materials(r.lesson).find(m=>m.id===r.material)?.name||'Bài đọc';
+function slideSourceLabel(ref){
+  return ref.course==='k4'&&ref.material==='main'&&realSlidesByDay[ref.lesson]?.length?'Học liệu thật từ VLearn':'Học liệu minh họa';
+}
 function historySVG(){
  const points=[[45,208,'1956','Dartmouth','Workshop', '#2e79d6'],[221,211,'1969','Perceptrons','', '#9caabc'],[275,283,'1973','Báo cáo','Lighthill','#9caabc'],[369,271,'1980','Hệ chuyên gia','', '#1f9d98'],[465,190,'1987','Sụp đổ Lisp','machine','#9caabc'],[722,225,'2006','Deep','Learning','#13968c'],[800,148,'2012','AlexNet','', '#13968c'],[854,105,'2016','AlphaGo','', '#8d48e8'],[882,83,'2017','Transformer','', '#8d48e8'],[896,68,'2018','GPT-1 / BERT','', '#8d48e8'],[950,25,'2022','ChatGPT','', '#8d48e8'],[976,-8,'2024','Kỷ nguyên','Agent','#8d48e8'],[999,-42,'2026','Hiện tại','', '#8d48e8']];
  return `<svg class="history-chart" viewBox="0 -125 1040 505" preserveAspectRatio="none" role="img" aria-label="Sơ đồ minh họa các giai đoạn phát triển AI, không phải số liệu định lượng">
@@ -93,6 +123,8 @@ function slideMarkup(slide,thumbnail=false){
  if(slide.kind==='pdf') return thumbnail?`<img src="${esc(slide.image)}" alt="" loading="lazy"><small>${slide.page}</small>`:`<img class="pdf-slide" src="${esc(slide.image)}" alt="Slide ${slide.page}: ${esc(slide.title)}">`;
  if(thumbnail) return `${slide.kind==='history'?historySVG():`<span>${esc(slide.title)}</span>`}<small>${slide.page}</small>`;
  if(slide.kind==='history')return `<h2>${esc(slide.title)}</h2>${historySVG()}<div class="history-caption">Đường cong minh họa các giai đoạn — không phải số liệu đo lường định lượng.</div><div class="slide-bullets"><strong>Các hướng đi lần lượt chạm trần:</strong><p>• <b>Hướng symbolic</b>: luật thủ công khó bao phủ nhiều ngữ cảnh.</p><p>• <b>Hướng Perceptron</b>: học từ ví dụ nhưng mô hình quá đơn giản.</p></div>`;
+ if(slide.kind==='real'&&slide.pdfPage)return `<div class="pdf-slide"><iframe class="pdf-frame" src="/api/vlearn-pdf?day=${slide.day}#page=${slide.pdfPage}" title="${esc(slide.title)} · PDF VLearn" loading="lazy"></iframe><div class="pdf-caption">VLearn · Day ${String(slide.day).padStart(2,'0')} · slide ${slide.page} · PDF trang ${slide.pdfPage}</div></div>`;
+ if(slide.kind==='real')return `<div class="text-slide real-slide"><div class="slide-kicker">VLearn · Slide ${slide.page} · chưa có trang PDF tương ứng</div><h2>${esc(slide.title)}</h2><div class="slide-content"><ul>${slide.bullets.map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div></div>`;
  return `<div class="text-slide ${slide.kind==='cover'?'cover':''}"><div class="slide-kicker">AI20K · Học liệu minh họa</div><h2>${esc(slide.title)}</h2>${slide.topicId==='1'?'<div class="concept-cards"><div class="concept-card"><b>RAG</b>Đưa tài liệu vào ngữ cảnh</div><div class="concept-card"><b>Fine-tuning</b>Điều chỉnh tham số mô hình</div></div>':''}<div class="slide-content"><ul>${slide.bullets.map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div><span class="slide-number">VLearn · ${slide.page}</span></div>`;
 }
 function openSlide(ref,origin=null){S.ref={...ref};S.ref.page=currentSlide().page;S.origin=origin;S.quiz=null;S.loading=false;S.requestId++;S.chatOpen=false;S.saveBanner=false;S.zoom=100;S.view='lesson';S.read[refKey(S.ref)]=true;persist();render();}
@@ -104,7 +136,7 @@ function courses(){
  $('#app').className='page course-page';
  $('#app').innerHTML=`<div class="course-top"><div><h1>KHÓA HỌC <em>CỦA TÔI</em></h1><p class="lead">Mỗi khóa học lưu trữ tài liệu, giáo án và phần ghi chú tương tác của riêng bạn.</p></div><div class="course-count">2 khóa học đang theo học</div></div><div class="course-card">${coursesData.map(c=>{const count=Object.keys(S.read).filter(k=>k.startsWith(c.id+':')).length;const open=S.openCourses.has(c.id);return `<section class="${c.id==='k3'?'course-separator':''}"><button class="course-row" data-action="toggle-course" data-id="${c.id}" aria-expanded="${open}"><span class="chevron">${icon(open?'down':'next')}</span><span class="course-code">${c.code}</span><span class="course-name">${c.name}</span><span class="course-progress">${count} trang đã mở · ${c.days.length} buổi minh họa</span></button><div class="day-list" ${open?'':'hidden'}>${c.days.map(day=>`<button class="day ${S.ref.course===c.id&&S.ref.lesson===day?'current':''}" data-action="open-day" data-course="${c.id}" data-day="${day}"><span class="circle">${S.ref.course===c.id&&S.ref.lesson===day?'▶':''}</span>Buổi ${day}: ${esc(lessonNames[day])}<small>${S.ref.course===c.id&&S.ref.lesson===day?'ĐANG HỌC…':'Mở bài học →'}</small></button>`).join('')}</div></section>`;}).join('')}</div>${footer()}`;
 }
-function footer(){return `<div class="demo-footer"><span>VinMark · Bản mô phỏng CP2 · Nội dung slide và phản hồi AI là dữ liệu minh họa.</span><button data-action="reset-demo">Đặt lại demo</button></div>`;}
+function footer(){return `<div class="demo-footer"><span>VinMark · Slide Day 01/02 đọc từ dữ liệu VLearn thật; các buổi khác vẫn là dữ liệu demo.</span><button data-action="reset-demo">Đặt lại demo</button></div>`;}
 function lesson(){
  const slide=currentSlide(),slides=slidesFor(S.ref),idx=slides.findIndex(s=>s.page===slide.page),key=refKey(S.ref);
  const marked=Boolean(S.marks[key]);
@@ -112,9 +144,15 @@ function lesson(){
  const readCount=slides.filter(p=>S.read[refKey({...S.ref,page:p.page})]).length;
  $('#app').innerHTML=`<div class="lesson-top">${tool('back-lesson',S.origin?'Quay lại Luyện tập':'Quay lại Khóa học','back')}<span class="lesson-title">Bài ${S.ref.lesson} · ${esc(lessonNames[S.ref.lesson].split(' · ')[0])}</span><div class="lesson-progress">${readCount}/${slides.length} trang <span><i style="width:${readCount/slides.length*100}%"></i></span></div><div class="lesson-actions"><button class="spark" data-action="open-chat">${icon('star')}Đặt câu hỏi với AI</button><button data-action="request-help">${icon('hand')}Gửi yêu cầu</button><span class="avatar">N</span></div></div>
  <div class="lesson-body ${S.sidebar?'':'no-sidebar'}">${S.sidebar?`<aside class="lesson-sidebar"><div class="side-head">NỘI DUNG BÀI HỌC ${tool('toggle-sidebar','Đóng mục lục','close')}</div><div class="side-section"><button class="side-group" data-action="toggle-slides" aria-expanded="${S.slidesOpen}">Slides ${icon(S.slidesOpen?'down':'next')}</button>${S.slidesOpen?materials(S.ref.lesson).map(m=>`<button class="lesson-link ${S.ref.material===m.id?'active':''}" data-action="select-material" data-id="${m.id}"><span class="material-icon">${icon('slides')}</span><span class="material-title">${esc(m.name)}</span>${S.ref.material===m.id?'<small>Đang học</small>':''}</button>`).join(''):''}</div><button class="side-group lab" data-action="toggle-lab" aria-expanded="${S.labOpen}"><span>${icon('lab')} Lab ${String(S.ref.lesson).padStart(2,'0')} – Thực hành</span>${icon(S.labOpen?'down':'next')}</button>${S.labOpen?`<div class="lab-item">${[['setup','Lấy repo và nhìn thấy đích đến'],['baseline','Dựng môi trường và chạy test baseline'],['reading','Bài đọc'],['code','Code gợi ý: Gọi model']].map(([id,title],i)=>`${i===2?'<div class="lab-head">Task 1.1 – Gọi model và đo độ trễ</div>':''}<button class="lesson-link" data-action="open-reading" data-id="${id}"><span class="step-circle">${i+1}</span>${title}</button>`).join('')}</div>`:''}</aside>`:''}
+<<<<<<< HEAD
  <section class="slide-area"><div class="context-strip"><span>${!S.sidebar?tool('toggle-sidebar','Mở mục lục','menu'):''}${esc(materialName(S.ref))} · Học liệu minh họa</span>${S.origin?button('back-lesson','Về mục đang ôn','back'):button('practice','Luyện tập','practice')}</div>
  <div class="slide-viewport"><div class="slide-box ${marked?'highlighted':''} ${slide.kind==='pdf'?'pdf-box':''}" style="width:${S.zoom}%">${slideMarkup(slide)}<button class="ai-fab" data-action="open-chat" aria-label="Hỏi AI về slide này">${icon('star')}</button></div></div>
  <div class="viewer-tools"><div class="tool-group">${tool('mark-slide',marked?'Bỏ đánh dấu trên slide':'Đánh dấu kiến thức trên slide','pen',marked?'class="active"':'')}${tool('toggle-sidebar','Ẩn hoặc hiện mục lục','book')}${tool('save-slide','Lưu slide vào VinMark','save')}</div><div class="tool-group zoom-group">${tool('zoom-out','Thu nhỏ','minus',S.zoom<=75?'disabled':'')}<span>${S.zoom}%</span>${tool('zoom-in','Phóng to','plus',S.zoom>=150?'disabled':'')}</div><div class="tool-group">${tool('read-text','Đọc nội dung slide','note')}${tool('expand','Chế độ tập trung','expand')}</div><div class="tool-group page-nav">${tool('prev-slide','Slide trước','back',idx<=0?'disabled':'')}<input class="page-field" id="page-number" aria-label="Số trang slide" type="number" min="1" value="${slide.page}"><span class="page-total">· ${idx+1}/${slides.length} ${slide.kind==='pdf'?'slide':'slide mẫu'}</span>${tool('next-slide','Slide tiếp theo','next',idx>=slides.length-1?'disabled':'')}</div><div class="tool-group">${tool('toggle-thumbs','Ẩn hoặc hiện ảnh thu nhỏ','grid')}${tool('notes','Sổ ghi chú','note')}</div></div>
+=======
+ <section class="slide-area"><div class="context-strip"><span>${!S.sidebar?tool('toggle-sidebar','Mở mục lục','menu'):''}${esc(materialName(S.ref))} · ${slideSourceLabel(S.ref)}</span>${S.origin?button('back-lesson','Về mục đang ôn','back'):button('practice','Luyện tập','practice')}</div>
+ <div class="slide-viewport"><div class="slide-box ${marked?'highlighted':''}" style="width:${S.zoom}%">${slideMarkup(slide)}<button class="ai-fab" data-action="open-chat" aria-label="Hỏi AI về slide này">${icon('star')}</button></div></div>
+ <div class="viewer-tools"><div class="tool-group">${tool('mark-slide',marked?'Bỏ đánh dấu trên slide':'Đánh dấu kiến thức trên slide','pen',marked?'class="active"':'')}${tool('toggle-sidebar','Ẩn hoặc hiện mục lục','book')}${tool('save-slide','Lưu slide vào VinMark','save')}</div><div class="tool-group zoom-group">${tool('zoom-out','Thu nhỏ','minus',S.zoom<=75?'disabled':'')}<span>${S.zoom}%</span>${tool('zoom-in','Phóng to','plus',S.zoom>=150?'disabled':'')}</div><div class="tool-group">${tool('read-text','Đọc nội dung slide','note')}${tool('expand','Chế độ tập trung','expand')}</div><div class="tool-group page-nav">${tool('prev-slide','Slide trước','back',idx<=0?'disabled':'')}<input class="page-field" id="page-number" aria-label="Số trang slide" type="number" min="1" value="${slide.page}"><span class="page-total">· ${idx+1}/${slides.length} ${S.ref.course==='k4'&&S.ref.material==='main'&&realSlidesByDay[S.ref.lesson]?.length?'slide thật':'slide mẫu'}</span>${tool('next-slide','Slide tiếp theo','next',idx>=slides.length-1?'disabled':'')}</div><div class="tool-group">${tool('toggle-thumbs','Ẩn hoặc hiện ảnh thu nhỏ','grid')}${tool('notes','Sổ ghi chú','note')}</div></div>
+>>>>>>> 4ac626809382a9dfa0209dd0b73280f74ca07e16
  ${S.thumbnails?`<div class="thumb-track" aria-label="Ảnh thu nhỏ các slide">${slides.map(s=>`<button class="thumb ${s.kind==='cover'?'cover':''} ${s.page===slide.page?'active':''}" data-action="goto-slide" data-page="${s.page}" aria-label="Mở slide ${s.page}: ${esc(s.title)}" ${s.page===slide.page?'aria-current="page"':''}>${slideMarkup(s,true)}</button>`).join('')}</div>`:''}
  ${S.saveBanner?`<div class="saved-banner"><span>${icon('check')} Đã lưu kiến thức cùng slide nguồn vào VinMark.</span>${button('open-saved','Ôn mục vừa lưu','next')}</div>`:''}
  <details class="notes-card" id="notes-card"><summary>${icon('note')} Sổ ghi chú của bạn</summary><p>Ghi chú được lưu trên trình duyệt theo từng slide.</p><textarea id="slide-note" aria-label="Ghi chú của slide" placeholder="Điều bạn muốn ghi nhớ ở slide này…">${esc(S.notes[key]||'')}</textarea></details>${footer()}</section></div>`;
@@ -298,6 +336,20 @@ function render(){
  document.body.classList.toggle('in-lesson',S.view==='lesson');$('#chat-drawer')?.remove();header();
  if(S.view==='courses')courses();else if(S.view==='lesson')lesson();else practice();
 }
+async function loadRealSlides(){
+ if(location.protocol==='file:')return;
+ try{
+  const packs=await Promise.all([1,2].map(async day=>{
+   const response=await fetch(`/api/vlearn-slides?day=${day}`);
+   if(!response.ok)throw new Error(`slide data ${day} unavailable`);
+   return [day,await response.json()];
+  }));
+  for(const [day,pack] of packs){realSlidePacks[day]=pack;realSlidesByDay[day]=realSlides(pack,day);}
+  if(!S.quiz)render();
+ }catch(error){
+  console.warn('Không tải được dữ liệu slide thật từ VLearn:',error.message);
+ }
+}
 function toast(text){const t=$('#toast');t.textContent=text;t.setAttribute('role','status');t.classList.add('show');clearTimeout(S.toastTimer);S.toastTimer=setTimeout(()=>t.classList.remove('show'),3000);}
 document.addEventListener('click',e=>{
  const nav=e.target.closest('[data-view]');if(nav){e.preventDefault();S.view=nav.dataset.view;S.quiz=null;S.loading=false;S.requestId++;S.chatOpen=false;render();return;}
@@ -357,3 +409,4 @@ document.addEventListener('keydown',e=>{if(S.view!=='lesson'||e.target.closest('
  if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const arr=slidesFor(S.ref),i=arr.findIndex(p=>p.page===S.ref.page),s=arr[i+(e.key==='ArrowRight'?1:-1)];if(s){e.preventDefault();moveSlide(s.page);}}
 });
 render();
+loadRealSlides();
