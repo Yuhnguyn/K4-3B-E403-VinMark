@@ -46,19 +46,17 @@ Dữ liệu form cho thấy người dùng không thiếu ý định học, mà 
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 
-Chưa có log trải nghiệm trực tiếp của nhóm. Khuê phân công thử hai giải pháp học với nguồn/quiz, ghi flow thực tế, điểm đáng học, điểm đáng tránh và khác biệt của VinMark. Không khai đã dùng thử khi chưa có dữ liệu.
-
-Khác biệt mục tiêu: mở lại đúng câu hỏi và vị trí nguồn của học viên, rồi kiểm tra bằng quiz ngắn.
+Một số sản phẩm như Khanmigo, StudyFetch và Gemini Notebook đã giải quyết một phần vấn đề bằng cách lưu lại lịch sử hỏi đáp, cho phép hỏi trực tiếp dựa trên slide/tài liệu và tạo notes, flashcards hoặc quiz để ôn tập. Tuy nhiên, các giải pháp này chủ yếu tập trung vào chat history hoặc tài liệu học tập, chưa gắn chặt với ngữ cảnh khóa học như lecture, slide và bài lab. Khoảng trống của VLearn là biến mỗi lần học viên hỏi Tutor thành một “learning gap” được lưu theo đúng slide/kiến thức, để sau buổi học có thể nhanh chóng tìm lại, ôn tập và kiểm tra lại trước khi làm lab. 
 
 ## §4. Thiết kế
 
-**Lát cắt theo canvas:** Học viên vừa hỏi Tutor về hoặc đánh dấu một slide · cần ôn lại đúng chỗ đó vài ngày sau · AI quyết định slide có đủ ngữ cảnh để sinh quiz hay không và chọn 3–10 câu phù hợp · nhận quiz trắc nghiệm kèm giải thích trong kho ôn và nhắc sau 1 và 3 ngày.
+**Lát cắt theo canvas:** Học viên vừa hỏi Tutor về hoặc đánh dấu một slide · cần ôn lại đúng chỗ đó vài ngày sau · AI quyết định slide có đủ ngữ cảnh để sinh quiz hay không và chọn 3–10 câu phù hợp · nhận quiz trắc nghiệm kèm giải thích trong kho ôn.
 
 **Quyết định AI trung tâm:** nguồn có đủ căn cứ tạo số câu phù hợp trong khoảng 3–10 không? Có → tạo số câu AI chọn, mỗi câu có giải thích/dẫn nguồn. Chưa đủ → hỏi làm rõ/yêu cầu nguồn. Ứng dụng tính lịch nhắc bằng code.
 
 **Automation: conditional.** Quiz sai khiến học viên ôn sai; nguồn thiếu phải bị chặn. Kiểm tra citation không chứng minh kiến thức đúng, cần người đối chiếu output đánh giá và có cơ chế báo câu sai.
 
-**Hiện tại:** UI mock bấm được, có endpoint Gemini/NIM/DeepSeek, validator và runner trace/eval. Đã chạy DeepSeek lượt 1 trên 20 ca: 14/20 pass; chưa đạt quality bar đề xuất. **Mục tiêu:** chỉ khai Working khi thực sự chạy end-to-end trên pack đã curate đầy đủ.
+**Hiện tại:** UI tương tác được, có endpoint Gemini/NIM/DeepSeek, validator và runner trace/eval. Đã chạy DeepSeek lượt 1 trên 20 ca: 14/20 pass; chưa đạt quality bar đề xuất. **Mục tiêu:** chỉ khai Working khi thực sự chạy end-to-end trên pack đã curate đầy đủ.
 
 **Non-goals:** không quét toàn khóa, không chatbot mới, không đăng nhập/đồng bộ, không tự luận hoặc chấm điểm chính thức, không vector database/multi-agent trong sản phẩm. Nhắc showcase đề xuất hiển thị trong app khi mở lại; không coi đó là email/push.
 
