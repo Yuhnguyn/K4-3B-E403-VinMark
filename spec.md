@@ -2,7 +2,6 @@
 
 Nhóm VinMark · K4–3B · E403 · Track A2 — tính năng mới trên VLearn.
 
-Dự thảo cập nhật theo canvas nhóm cung cấp ngày 18/09/2026. Chưa xác nhận commit/nộp CP4 hoặc khóa quality bar. Các đề xuất dưới đây chưa phải báo cáo đã triển khai.
 
 Tài liệu: [Canvas nhóm](CANVAS.md) · [Workflow](WORKFLOW.html) · [Chi tiết triển khai](SHOWCASE_SPEC.md) · [Bối cảnh BTC/data](HACKATHON_CONTEXT.md).
 
@@ -18,9 +17,9 @@ Tài liệu: [Canvas nhóm](CANVAS.md) · [Workflow](WORKFLOW.html) · [Chi ti�
 
 | Nguồn | Đã có | Chưa được chứng minh |
 |---|---|---|
-| Khảo sát pilot (21 phản hồi) | 18/21 người biết về trợ giảng AI trên VLearn; 14/21 sử dụng ít khi; 10/21 cho biết họ cảm thấy khó tìm lại kiến thức khó hiểu cũ; 19/21 sẵn sàng thử/test nếu có tính năng | Mẫu nhỏ, chưa đại diện toàn VLearn; chưa đo thời gian tìm lại, mức độ mất trật tự hay hiệu quả ôn thực tế |
+| Khảo sát pilot (21 phản hồi) | 18/21 người biết về trợ giảng AI trên VLearn; 14/21 ít khi sử dụng, trong đó 11 người không sử dụng vì không có nhu cầu; 19/21 cho biết họ cảm thấy khó tìm lại kiến thức khó hiểu cũ; 19/21 sẵn sàng thử/test nếu có tính năng | Mẫu nhỏ, chưa đại diện toàn VLearn; chưa đo thời gian tìm lại, hay hiệu quả ôn thực tế |
 | Chatlog pack | Có ví dụ người dùng nói “ôn lại bài cũ”, “tóm tắt nội dung chính”, “không hiểu câu quiz” | Không đủ để suy ra tỷ lệ toàn người dùng hay mức độ ưu tiên tuyệt đối |
-| Willing users | 19/21 phản hồi đồng ý sẵn sàng làm user/test | Chưa có phiên dùng thử thực tế hoặc feedback sau khi dùng |
+| Willing users | 19/21 phản hồi đồng ý sẵn sàng làm user | Chưa có phiên dùng thử thực tế hoặc feedback sau khi dùng |
 
 Năm ví dụ đã đọc, trích ngắn:
 
@@ -32,7 +31,6 @@ Năm ví dụ đã đọc, trích ngắn:
 | T11920 | “nếu làm sai k được max điểm có ảnh hưởng tới điểm chung không” | Cần phân biệt luyện tập với điểm chính thức |
 | T10696 | “target của việc ôn tập là gì, kiểm tra cuối tuần à” | Cần rõ mục tiêu ôn |
 
-Phương pháp và số đếm: [HACKATHON_CONTEXT.md](HACKATHON_CONTEXT.md). Năm ví dụ không thay thế khảo sát. Dữ liệu form hiện tại cho thấy vấn đề không nằm ở “không biết AI tồn tại” hoàn toàn, mà ở việc nhiều người dùng AI ít khi hoặc không có hệ thống để quay lại đúng đoạn khó hiểu sau buổi học. Ta cần tách biệt: “có biết AI” với “có flow ôn lại và kiểm tra kiến thức cũ” là hai vấn đề khác nhau.
 
 ## §2. Impact và quyết định chọn
 
@@ -41,8 +39,8 @@ VinMark được nhóm chọn trong canvas dựa trên bằng chứng pilot. B�
 | Phương án | Người gặp / tần suất | Chi phí mỗi lần | Quyết định |
 |---|---|---|---|
 | Kho ôn có nguồn + quiz nhiều câu | 19/21 phản hồi cho biết họ cảm thấy khó tìm lại kiến thức cũ; 14/21 ít khi sử dụng trợ giảng AI trong đó 11 người không dùng vì không có nhu cầu; 14/21 thường dùng những cách đánh dấu slides và/hoặc hỏi trợ giảng AI về kiến thức khó; 19/21 sẵn sàng thử nếu có tính năng luyện tập | Chưa đo phút tìm/lần, nhưng rõ là có friction trong quá trình recall và review | Chọn; khớp với “lấy lại đúng chỗ chưa hiểu” và có khả năng chuyển đổi tốt trong mẫu pilot |
-| Cải thiện Tutor tại chỗ | 18/21 biết về tính năng, nhưng không đồng nghĩa là cần sửa Tutor ngay; nhiều người chỉ dùng ít khi hoặc không cần giải thích ngay tại chỗ | Chưa đo; không chứng minh lỗi trả lời hoặc nghĩa vụ sửa lập tức | Tạm để sau; đây không phải slice chính nếu mục tiêu là recall sau buổi học |
-| Tổng hợp toàn buổi | Có ví dụ trong chatlog, nhưng form không đo trực tiếp nhu cầu “tóm tắt cả buổi” | Chưa đo thời gian đọc/tìm | Tạm để sau; quá rộng so với pain point được dữ liệu pilot hỗ trợ |
+| Cải thiện tính năng Tutor | 18/21 biết về tính năng; nhiều người chỉ ít khi dùng hoặc không cần giải thích ngay tại chỗ | Chưa đo; không chứng minh lỗi trả lời hoặc nghĩa vụ sửa lập tức | Tạm để sau; đây không phải slice chính nếu mục tiêu là recall sau buổi học |
+| Tổng hợp từng buổi | Có ví dụ trong chatlog, nhưng form không đo trực tiếp nhu cầu “tóm tắt cả buổi” | Chưa đo thời gian đọc/tìm | Tạm để sau; quá rộng so với pain point được dữ liệu pilot hỗ trợ |
 
 Dữ liệu form cho thấy người dùng không thiếu ý định học, mà thiếu một flow ôn nhắm đúng chỗ và dễ quay lại. Do đó, sản phẩm nên ưu tiên “trả lời đúng một phần khó hiểu, lưu lại và nhắc ôn”, thay vì tổng hợp cả buổi hay cải thiện toàn bộ Tutor tại chỗ. Chưa có impact định lượng đầy đủ cho toàn VLearn; cần thêm khảo sát/mỗi lần đo thời gian và hiệu quả trước khi khẳng định tỷ lệ lớn hơn mẫu.
 
