@@ -1,8 +1,12 @@
-const {chromium}=require('/Users/huynguyen/.npm/_npx/9833c18b2d85bc59/node_modules/playwright');
+const fs=require('node:fs');
+let chromium;
+try { ({chromium}=require(process.env.PLAYWRIGHT_PATH||'playwright')); }
+catch { console.error('Playwright is required. Set PLAYWRIGHT_PATH or install playwright in the development environment.'); process.exit(2); }
 const assert=require('node:assert/strict');
-const target=process.argv[2]||'file:///tmp/vinmark-upgrade/index.html';
+const target=process.argv[2]||'http://127.0.0.1:3000/';
 (async()=>{
- const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,timeout:15000});
+  const executablePath=process.env.CHROME_PATH||(['win32'].includes(process.platform)?'C:/Program Files/Google/Chrome/Application/chrome.exe':process.platform==='darwin'?'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome':undefined);
+  const browser=await chromium.launch({...(executablePath&&fs.existsSync(executablePath)?{executablePath}:{}),headless:true,timeout:15000});
  try {
  const page=await browser.newPage({viewport:{width:1512,height:982}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -22,7 +26,7 @@ const target=process.argv[2]||'file:///tmp/vinmark-upgrade/index.html';
  await page.locator('[data-action="start-quiz"]').click();await page.locator('[data-action="answer"]').first().waitFor();
  const total=await page.locator('.quiz-dots button').count();assert.equal(total,5);
  for(let i=0;i<total;i++){
-  const answer=await page.evaluate(()=>S.quiz.plan.questions[S.quiz.index][2]);
+  const answer=await page.evaluate(()=>S.quiz.plan.questions[S.quiz.index].correctIndex);
   await page.locator(`[data-action="answer"][data-index="${answer}"]`).click();
   await page.locator(i===total-1?'[data-action="submit-quiz"]':'[data-action="quiz-next"]').click();
  }
@@ -32,17 +36,22 @@ const target=process.argv[2]||'file:///tmp/vinmark-upgrade/index.html';
  await page.locator('[data-action="select-item"][data-id="2"]').click();await page.locator('[data-action="start-quiz"]').click();await page.locator('[data-action="answer"]').first().waitFor();
  assert.equal(await page.locator('.quiz-dots button').count(),4);
  for(let i=0;i<4;i++){
-  const wrong=await page.evaluate(()=>(S.quiz.plan.questions[S.quiz.index][2]+1)%4);
+   const wrong=await page.evaluate(()=>(S.quiz.plan.questions[S.quiz.index].correctIndex+1)%4);
   await page.locator(`[data-action="answer"][data-index="${wrong}"]`).click();
   await page.locator(i===3?'[data-action="submit-quiz"]':'[data-action="quiz-next"]').click();
  }
  assert.equal(await page.evaluate(()=>S.items.find(x=>x.id==='2').status),'need');
  await page.locator('[data-action="exit-quiz"]').first().click();
  await page.locator('[data-action="select-item"][data-id="5"]').click();
- assert.equal(await page.locator('[data-action="start-quiz"]').isDisabled(),true);
- await page.locator('[data-action="supplement"]').click();await page.locator('[data-action="sample-source"]').click();
- await page.locator('[data-action="start-quiz"]').click();await page.locator('[data-action="answer"]').first().waitFor();
- assert.match(await page.locator('.question').innerText(),/Attention/);
+  if(target.startsWith('http')){
+   await page.locator('[data-action="start-quiz"]').click();
+  }else{
+   assert.equal(await page.locator('[data-action="start-quiz"]').isDisabled(),true);
+   await page.locator('[data-action="supplement"]').click();await page.locator('[data-action="sample-source"]').click();
+   await page.locator('[data-action="start-quiz"]').click();
+  }
+  await page.locator('[data-action="answer"]').first().waitFor();
+  assert.match(await page.locator('.question').innerText(),/attention/i);
  await page.locator('[data-view="courses"]').last().click();
  await page.locator('[data-action="toggle-course"][data-id="k4"]').click();assert.equal(await page.locator('[data-action="open-day"][data-day="1"][data-course="k4"]').isVisible(),false);
  await page.locator('[data-action="toggle-course"][data-id="k4"]').click();

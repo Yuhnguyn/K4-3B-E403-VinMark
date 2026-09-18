@@ -32,7 +32,8 @@ const referenceMap = {'1':{lesson:3,material:'main',page:12},'2':{lesson:3,mater
 const topics = seed.map(x=>{
   const prior=progress.get(x.id);
   return {...structuredClone(x),ref:{course:'k4',...referenceMap[x.id]},status:prior?.status||x.status,
-    attempts:prior?.attempts||0,lastResult:prior?.lastResult||null,
+    attempts:prior?.attempts||0,lastResult:prior?.lastResult||null,attemptHistory:prior?.attemptHistory||[],
+    revision:prior?.revision||1,sourceVersion:prior?.sourceVersion||null,feedback:prior?.feedback||[],quizInvalidated:prior?.quizInvalidated||false,
     sourceReady:x.id==='5'?Boolean(prior?.sourceReady||prior?.status==='need'):true,
     quiz:x.id==='5'?structuredClone(ATTENTION):structuredClone(x.quiz)};
 });
@@ -136,39 +137,75 @@ function renderDetail(){
  const x=S.items.find(t=>t.id===S.selected),p=$('#detail');if(!x){p.innerHTML='<div class="empty">Chọn một kiến thức để bắt đầu ôn tập.</div>';return;}
  if(S.loading){p.innerHTML='<div class="empty"><div class="spinner"></div><h2>Đang chuẩn bị bài quiz</h2><p>Agent đang xem phạm vi kiến thức và các ý cần kiểm tra.</p><p class="tiny muted">Mô phỏng CP2</p></div>';return;}
  if(S.quiz){renderQuiz(x);return;}
- p.innerHTML=`<div class="dhead"><div class="dtitle"><i class="dot ${x.status}"></i><div><h2>${esc(x.title)}</h2><div class="sub">${esc(x.session)} · ${esc(x.date)}</div></div></div><div class="buttons">${button('source','Mở slide nguồn','slides')}${button('start-quiz','Làm quiz','star','class="primary" '+(x.status==='missing'?'disabled':''))}</div></div><div class="source"><div><div class="label">${x.source==='Đánh dấu slide'?'Đoạn kiến thức đã lưu':'Câu hỏi đã lưu'}</div><div class="quote">${esc(x.question)}</div><div class="summary"><h3>Kiến thức cần nhớ</h3><ul>${x.summary.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div></div><aside class="source-card"><div class="label">Nguồn tham chiếu</div><div class="slide">${esc(x.slide)}</div><p>${esc(x.src)}</p><button data-action="source">Xem đoạn slide →</button></aside></div><div class="quiet-notice">${icon('star')} Bài quiz được chuẩn bị theo kiến thức bạn cần ôn. Số câu do Agent lựa chọn sau khi kiểm tra nội dung nguồn.</div><div class="schedule"><div class="chip"><strong>${x.status==='done'?'✓ Đã ôn đạt':'◷ Cần ôn'}</strong>${x.status==='done'?'Đã dừng nhắc; vẫn lưu lịch sử':'Ôn theo tiến độ của bạn'}</div>${x.status==='done'?'':'<div class="chip"><strong>Ngày +1 · Ngày +3</strong>Lịch nhắc minh họa</div>'}</div>${x.status==='missing'?`<div class="state missing"><div><b>Chưa đủ nội dung nguồn để tạo quiz.</b><br>Thêm nội dung của slide trước khi làm bài.</div>${button('supplement','Bổ sung nguồn','note')}</div>`:x.status==='done'?'<div class="state done">✓ Đã ôn đạt. Bạn có thể làm lại quiz khi muốn.</div>':''}`;
+  p.innerHTML=`<div class="dhead"><div class="dtitle"><i class="dot ${x.status}"></i><div><h2>${esc(x.title)}</h2><div class="sub">${esc(x.session)} · ${esc(x.date)}</div></div></div><div class="buttons">${button('source','Mở slide nguồn','slides')}${button('start-quiz','Làm quiz','star','class="primary" '+(x.status==='missing'&&!x.sourceId?'disabled':''))}</div></div><div class="source"><div><div class="label">${x.source==='Đánh dấu slide'?'Đoạn kiến thức đã lưu':'Câu hỏi đã lưu'}</div><div class="quote">${esc(x.question)}</div><div class="summary"><h3>Kiến thức cần nhớ</h3><ul>${x.summary.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div></div><aside class="source-card"><div class="label">Nguồn tham chiếu</div><div class="slide">${esc(x.slide)}</div><p>${esc(x.src)}</p><button data-action="source">Xem đoạn slide →</button></aside></div><div class="quiet-notice">${icon('star')} Bài quiz được chuẩn bị theo kiến thức bạn cần ôn. AI chọn 3–10 câu sau khi kiểm tra nội dung nguồn.</div><div class="schedule"><div class="chip"><strong>${x.status==='done'?'✓ Đã ôn đạt':'◷ Cần ôn'}</strong>${x.status==='done'?'Đã dừng nhắc; vẫn lưu lịch sử':'Ôn theo tiến độ của bạn'}</div>${x.status==='done'?'':'<div class="chip"><strong>Ngày +1 · Ngày +3</strong>Lịch nhắc minh họa</div>'}</div>${x.status==='missing'?`<div class="state missing"><div><b>Chưa đủ nội dung nguồn để tạo quiz.</b><br>Thêm nội dung của slide trước khi làm bài.</div>${button('supplement','Bổ sung nguồn','note')}</div>`:x.status==='done'?'<div class="state done">✓ Đã ôn đạt. Bạn có thể làm lại quiz khi muốn.</div>':''}`;
 }
 // CP2 adapter: returns a variable-length plan, with no fixed question count in the UI.
 // CP3 can replace this function with an API returning the same object.
 function mockAgentPlan(item){
- const questions=structuredClone(item.quiz);
- if(!item.sourceReady||questions.length===0)return null;
- const reordered=item.attempts%2?questions.slice().reverse():questions;
- return {questions:reordered,reason:item.title.includes('RAG')?'Ôn khái niệm, phân biệt hai cách tiếp cận và kiểm tra khả năng áp dụng.':'Kiểm tra các ý cốt lõi có trong nguồn đã lưu.',passRatio:.8,mock:true};
+  const questions=structuredClone(item.quiz);
+  if(!item.sourceReady||questions.length===0)return null;
+  const reordered=item.attempts%2?questions.slice().reverse():questions;
+  return {questions:reordered,reason:item.title.includes('RAG')?'Ôn khái niệm, phân biệt hai cách tiếp cận và kiểm tra khả năng áp dụng.':'Kiểm tra các ý cốt lõi có trong nguồn đã lưu.',passRatio:.8,generationMode:'fixture'};
 }
-function startQuiz(){
- const item=S.items.find(x=>x.id===S.selected);if(!item||item.status==='missing')return;
- const token=++S.requestId;S.loading=true;renderDetail();
- setTimeout(()=>{if(token!==S.requestId||S.view!=='practice'||S.selected!==item.id)return;
-  S.loading=false;const plan=mockAgentPlan(item);if(!plan){toast('Chưa đủ nội dung để chuẩn bị bài quiz.');renderDetail();return;}
-  S.quiz={itemId:item.id,plan,index:0,answers:[],submitted:false};renderDetail();
- },650);
+function normalizeQuizPlan(plan){
+  if(!plan||!Array.isArray(plan.questions))return null;
+  const questions=plan.questions.map((q,i)=>Array.isArray(q)?{id:`fixture-${i+1}`,concept:'',prompt:q[0],options:q[1],correctIndex:q[2],explanation:q[3],sourceId:null,evidenceQuote:''}:q);
+  if(questions.length<3||questions.length>10||questions.some(q=>!Array.isArray(q.options)||q.options.length!==4))return null;
+  return {...plan,questions,questionCount:questions.length,passRatio:.8};
+}
+async function requestQuiz(item){
+  if(location.protocol==='file:'||!item.sourceId){
+    await new Promise(resolve=>setTimeout(resolve,650));
+    return normalizeQuizPlan(mockAgentPlan(item));
+  }
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
+  let response;
+  try{response=await fetch('/api/quiz',{method:'POST',headers:{'content-type':'application/json'},signal:controller.signal,body:JSON.stringify({
+    itemId:item.id,revision:item.revision||1,sourceRef:{sourceId:item.sourceId},learnerQuestions:[item.question],mode:item.lastResult?'retry':'initial',
+    previousAttempt:item.lastResult?{questionCount:item.lastResult.total,wrongConcepts:item.lastResult.wrongConcepts||[]}:undefined
+  })});}catch(error){if(error.name==='AbortError')throw new Error('API quá thời gian chờ 30 giây.');throw error;}finally{clearTimeout(timeout);}
+  const body=await response.json().catch(()=>({status:'error',message:'API trả về dữ liệu không hợp lệ.'}));
+  if(!response.ok||body.status==='error')throw new Error(body.message||'Không thể chuẩn bị quiz.');
+  if(body.status==='ready'){
+    const plan=normalizeQuizPlan(body);if(!plan)throw new Error('API trả về quiz không đúng cấu trúc.');
+    return plan;
+  }
+  return body;
+}
+async function startQuiz(){
+  const item=S.items.find(x=>x.id===S.selected);if(!item||item.status==='missing'&&!item.sourceId)return;
+  const token=++S.requestId;S.loading=true;renderDetail();
+  try{
+   if(item.sourceId&&item.status==='missing')item.status='need';
+   const plan=await requestQuiz(item);if(token!==S.requestId||S.view!=='practice'||S.selected!==item.id)return;
+   S.loading=false;
+   if(plan?.status==='needs_context'){item.status='missing';item.sourceReady=false;persist();toast(plan.reason);renderDetail();return;}
+   if(!plan){toast('Chưa đủ nội dung để chuẩn bị bài quiz.');renderDetail();return;}
+   if(plan.sourceVersion&&item.sourceVersion&&plan.sourceVersion!==item.sourceVersion){item.revision++;item.sourceVersion=plan.sourceVersion;item.status='need';persist();toast('Nguồn đã thay đổi. Hãy tạo lại quiz cho phiên bản mới.');renderDetail();return;}
+   if(plan.sourceVersion)item.sourceVersion=plan.sourceVersion;
+   item.sourceReady=true;
+   S.quiz={itemId:item.id,plan,index:0,answers:[],submitted:false};renderDetail();
+  }catch(error){
+   if(token!==S.requestId)return;
+   S.loading=false;toast(error.message||'Không thể chuẩn bị quiz. Hãy thử lại.');renderDetail();
+  }
 }
 function renderQuiz(item){
  const run=S.quiz,plan=run.plan,total=plan.questions.length,required=Math.ceil(total*plan.passRatio);
  const head=`<div class="dhead"><div><h2>${run.submitted?'Kết quả ôn tập':'Quiz ôn tập'}</h2><div class="sub">${esc(item.title)}</div></div>${button('exit-quiz','Về kiến thức','back')}</div>`;
  if(run.submitted){
-  const score=run.score,pass=score>=required;
-  $('#detail').innerHTML=head+`<div class="quiz"><div class="result"><div class="score">${score}/${total}</div><div><h3>${pass?'Đã ôn đạt':'Cần ôn thêm'}</h3><p>Tiêu chí của demo: đúng ít nhất ${required}/${total} câu (80%).</p></div></div><div class="state ${pass?'done':'need'}">${pass?'Đã lưu kết quả và dừng lịch nhắc cho mục này.':'Đã lưu kết quả. Xem lại các ý trả lời sai trước khi ôn tiếp.'}</div>${plan.questions.map((q,i)=>`<div class="review-card ${run.answers[i]===q[2]?'good':'bad'}"><h3>${run.answers[i]===q[2]?'✓':'○'} Câu ${i+1}. ${esc(q[0])}</h3><p>Bạn chọn: ${esc(q[1][run.answers[i]])}</p><p><b>Đáp án: ${esc(q[1][q[2]])}</b></p><p>${esc(q[3])}</p><button class="btn" data-action="source">${icon('slides')} ${esc(item.slide)}</button></div>`).join('')}<div class="quizfoot">${button('exit-quiz','Về kiến thức','back')}${button('retry-quiz','Làm lại quiz','star')}</div></div>`;return;
+   const score=run.score,pass=score>=required;
+   $('#detail').innerHTML=head+`<div class="quiz"><div class="result"><div class="score">${score}/${total}</div><div><h3>${pass?'Đã ôn đạt':'Cần ôn thêm'}</h3><p>Tiêu chí của demo: đúng ít nhất ${required}/${total} câu (80%).</p></div></div><div class="state ${pass?'done':'need'}">${pass?'Đã lưu kết quả và dừng lịch nhắc cho mục này.':'Đã lưu kết quả. Xem lại các ý trả lời sai trước khi ôn tiếp.'}</div>${plan.questions.map((q,i)=>`<div class="review-card ${run.answers[i]===q.correctIndex?'good':'bad'}"><h3>${run.answers[i]===q.correctIndex?'✓':'○'} Câu ${i+1}. ${esc(q.prompt)}</h3><p>Bạn chọn: ${esc(q.options[run.answers[i]])}</p><p><b>Đáp án: ${esc(q.options[q.correctIndex])}</b></p><p>${esc(q.explanation)}</p><button class="btn" data-action="source">${icon('slides')} ${esc(item.slide)}</button> ${button('report-quiz','Báo câu sai','note',`data-index="${i}"`)}</div>`).join('')}<div class="quizfoot">${button('exit-quiz','Về kiến thức','back')}${button('retry-quiz','Làm lại quiz','star')}</div></div>`;return;
  }
  const q=plan.questions[run.index],selected=run.answers[run.index];
- $('#detail').innerHTML=head+`<div class="quiet-notice"><b>Bài ôn đã sẵn sàng · ${total} câu</b><br>${esc(plan.reason)}<br><span class="tiny muted">Lựa chọn của Agent được mô phỏng · Đạt khi đúng ít nhất ${required}/${total} câu.</span></div><div class="quiz-top"><div class="quiz-dots">${plan.questions.map((_,i)=>`<button data-action="quiz-goto" data-index="${i}" class="${run.index===i?'current':''} ${run.answers[i]!==undefined?'answered':''}" aria-label="Đến câu ${i+1}">${i+1}</button>`).join('')}</div><span class="muted tiny">${run.answers.filter(a=>a!==undefined).length}/${total} đã trả lời</span></div><div class="question">${run.index+1}. ${esc(q[0])}</div><div class="answers">${q[1].map((a,i)=>`<button class="answer ${selected===i?'sel':''}" data-action="answer" data-index="${i}" aria-pressed="${selected===i}"><span class="key">${String.fromCharCode(65+i)}</span>${esc(a)}</button>`).join('')}</div><div class="quizfoot">${button('quiz-prev','Câu trước','back',run.index===0?'disabled':'')}${run.index<total-1?button('quiz-next','Câu tiếp theo','next'):button('submit-quiz','Nộp bài','check',run.answers.filter(a=>a!==undefined).length<total?'disabled':'')}</div>`;
+  $('#detail').innerHTML=head+`<div class="quiet-notice"><b>Bài ôn đã sẵn sàng · ${total} câu</b><br>${esc(plan.reason||'Kiểm tra các ý cốt lõi có trong nguồn đã lưu.')}<br><span class="tiny muted">${plan.generationMode==='curated-demo'?'API demo dùng nguồn đã duyệt.':'Fixture demo được gắn nhãn rõ.'} Đạt khi đúng ít nhất ${required}/${total} câu.</span></div><div class="quiz-top"><div class="quiz-dots">${plan.questions.map((_,i)=>`<button data-action="quiz-goto" data-index="${i}" class="${run.index===i?'current':''} ${run.answers[i]!==undefined?'answered':''}" aria-label="Đến câu ${i+1}">${i+1}</button>`).join('')}</div><span class="muted tiny">${run.answers.filter(a=>a!==undefined).length}/${total} đã trả lời</span></div><div class="question">${run.index+1}. ${esc(q.prompt)}</div><div class="answers">${q.options.map((a,i)=>`<button class="answer ${selected===i?'sel':''}" data-action="answer" data-index="${i}" aria-pressed="${selected===i}"><span class="key">${String.fromCharCode(65+i)}</span>${esc(a)}</button>`).join('')}</div><div class="quizfoot">${button('quiz-prev','Câu trước','back',run.index===0?'disabled':'')}${run.index<total-1?button('quiz-next','Câu tiếp theo','next'):button('submit-quiz','Nộp bài','check',run.answers.filter(a=>a!==undefined).length<total?'disabled':'')}</div>`;
 }
 function finishQuiz(){
  const run=S.quiz;if(!run||run.submitted||run.answers.filter(a=>a!==undefined).length!==run.plan.questions.length)return;
- run.score=run.plan.questions.reduce((n,q,i)=>n+Number(run.answers[i]===q[2]),0);run.submitted=true;
- const item=S.items.find(x=>x.id===run.itemId);item.attempts++;item.status=run.score>=Math.ceil(run.plan.questions.length*run.plan.passRatio)?'done':'need';
- item.lastResult={score:run.score,total:run.plan.questions.length,at:new Date().toISOString()};persist();practice();
+  run.score=run.plan.questions.reduce((n,q,i)=>n+Number(run.answers[i]===q.correctIndex),0);run.submitted=true;
+  const item=S.items.find(x=>x.id===run.itemId);item.attempts++;item.status=run.score>=Math.ceil(run.plan.questions.length*run.plan.passRatio)?'done':'need';
+  const at=new Date().toISOString();const wrongConcepts=run.plan.questions.filter((q,i)=>run.answers[i]!==q.correctIndex).map(q=>q.concept).filter(Boolean);
+  item.lastResult={score:run.score,total:run.plan.questions.length,wrongConcepts,at};item.attemptHistory=[...(item.attemptHistory||[]),{quizId:run.plan.quizId||`fixture-${item.revision}`,revision:item.revision,questionCount:run.plan.questions.length,questions:structuredClone(run.plan.questions),answers:[...run.answers],score:run.score,total:run.plan.questions.length,at}];persist();practice();
 }
 function moveSlide(page){S.ref.page=page;S.zoom=100;S.saveBanner=false;S.read[refKey(S.ref)]=true;persist();lesson();}
 function makeQuestions(slide){
@@ -223,9 +260,11 @@ document.addEventListener('click',e=>{
  case 'tab':S.tab=b.dataset.id;S.quiz=null;S.loading=false;S.requestId++;practice();break;
  case 'select-item':S.selected=b.dataset.id;S.quiz=null;S.loading=false;S.requestId++;renderPracticeContent();break;
  case 'toggle-session':S.collapsed.has(b.dataset.id)?S.collapsed.delete(b.dataset.id):S.collapsed.add(b.dataset.id);renderPracticeContent();break;
- case 'start-quiz':case 'retry-quiz':S.quiz=null;startQuiz();break;
- case 'exit-quiz':S.quiz=null;practice();break;
- case 'answer':S.quiz.answers[S.quiz.index]=Number(b.dataset.index);renderDetail();break;
+  case 'start-quiz':case 'retry-quiz':S.quiz=null;startQuiz();break;
+  case 'exit-quiz':S.quiz=null;practice();break;
+  case 'report-quiz':{const q=S.quiz?.plan.questions[Number(b.dataset.index)];if(!q)break;modal('Báo câu quiz có lỗi',`<p>${esc(q.prompt)}</p><label for="quiz-feedback">Điều gì chưa đúng?</label><textarea id="quiz-feedback" maxlength="1000" required placeholder="Mô tả lỗi trong câu hỏi, đáp án hoặc nguồn…"></textarea>${button('save-quiz-feedback','Lưu phản hồi','save',`data-index="${b.dataset.index}"`)}`);break;}
+  case 'save-quiz-feedback':{const feedback=$('#quiz-feedback').value.trim();if(!feedback){$('#quiz-feedback').focus();break;}const feedbackItem=S.items.find(x=>x.id===S.quiz?.itemId);if(feedbackItem){feedbackItem.feedback=[...(feedbackItem.feedback||[]),{quizId:S.quiz.plan.quizId||null,questionIndex:Number(b.dataset.index),text:feedback,at:new Date().toISOString()}];feedbackItem.status='need';feedbackItem.quizInvalidated=true;persist();}S.quiz=null;$('#dialog').close();practice();toast('Đã lưu phản hồi và vô hiệu bộ quiz cũ.');break;}
+  case 'answer':S.quiz.answers[S.quiz.index]=Number(b.dataset.index);renderDetail();break;
  case 'quiz-goto':S.quiz.index=Number(b.dataset.index);renderDetail();break;
  case 'quiz-prev':S.quiz.index--;renderDetail();break;
  case 'quiz-next':S.quiz.index++;renderDetail();break;

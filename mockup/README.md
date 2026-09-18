@@ -1,6 +1,6 @@
 # VinMark — mockup CP2
 
-Mở `index.html` bằng trình duyệt. Không cần build, dependency hoặc API key.
+Mở `index.html` bằng trình duyệt để chạy fixture demo. Để chạy qua API local, từ thư mục gốc chạy `node server/server.js` rồi mở `http://127.0.0.1:3000/`.
 
 ## Luồng demo
 
@@ -17,9 +17,9 @@ Mở `index.html` bằng trình duyệt. Không cần build, dependency hoặc A
 - Buổi 1 có slide lịch sử AI dựng bằng SVG, attention và dự đoán token. Buổi 2 có problem statement/tự động hóa. Buổi 3 có RAG/prompt. Các buổi còn lại có tài liệu minh họa cơ bản.
 - Mã nguồn tham chiếu gồm course/lesson/material/page. Không chỉ mở một slide chung cho mọi mục.
 - Chat phản hồi bằng phần nhắc lại nội dung slide và ghi rõ chưa kết nối AI thật.
-- `mockAgentPlan()` trả về danh sách câu hỏi có độ dài thay đổi, lý do chọn và ngưỡng đạt; UI không khóa số câu. CP3 có thể thay adapter bằng API thực.
-- Dữ liệu hiện có bài 3, 4, 5 câu. Đây là ví dụ trong fixture, không phải giới hạn sản phẩm. Lần làm lại dùng cùng ngân hàng câu, đổi thứ tự; chưa sinh câu mới.
-- Ngưỡng 80% là quy tắc demo đã có, không do Agent tự đổi sau khi biết kết quả. Kết quả được lưu ngay khi nộp.
+- `mockAgentPlan()` trả về danh sách câu hỏi có độ dài thay đổi, lý do chọn và ngưỡng đạt; UI không khóa số câu. Khi chạy qua server, mục attention gọi `POST /api/quiz` và nhận quiz 3–10 câu từ source manifest đã duyệt.
+- Dữ liệu fixture hiện có bài 3, 4, 5 câu. Đây là ví dụ trong fixture, không phải giới hạn sản phẩm. API demo chọn số câu trong khoảng 3–10; lần làm lại giữ số câu và ưu tiên concept đã sai.
+- Ngưỡng 80% là quy tắc demo đã có, tính bằng `ceil(80% × tổng số câu)`, không do Agent tự đổi sau khi biết kết quả. Kết quả và snapshot từng lượt được lưu ngay khi nộp.
 - Lịch nhắc +1/+3 chỉ hiển thị minh họa; không gửi thông báo. Gửi yêu cầu hỗ trợ chỉ lưu trong ghi chú, không gửi bên ngoài.
 - LocalStorage lưu tiến độ, ghi chú, câu hỏi và dấu trang. Footer có **Đặt lại demo** và xác nhận trước khi xóa dữ liệu demo.
 

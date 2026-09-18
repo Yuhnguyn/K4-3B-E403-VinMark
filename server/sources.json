@@ -1,0 +1,64 @@
+[
+  {
+    "sourceId": "foundation-attention-1",
+    "courseId": "k4",
+    "lectureCode": "D01",
+    "materialId": "foundation-attention",
+    "locator": "segment:T04-040",
+    "sourceVersion": "attention-v1",
+    "title": "Attention trong ngữ cảnh",
+    "text": "Attention considers how relevant tokens are to one another in context. Query, key, and value participate in the calculation. Query represents the current information request. Key represents information that can be matched. Value carries the content passed into the result. Context helps a token receive meaning from surrounding tokens. Attention does not make every token equally important. The result combines information from related tokens. Related tokens receive more useful information for interpreting context. The source is a simplified conceptual explanation, not a full implementation formula.",
+    "statements": [
+      {
+        "concept": "attention",
+        "fact": "Attention considers how relevant tokens are to one another in context.",
+        "distractors": ["Attention treats every token as unrelated", "Attention removes the surrounding sentence", "Attention stores every learner question"]
+      },
+      {
+        "concept": "qkv",
+        "fact": "Query, key, and value participate in the calculation.",
+        "distractors": ["Only the final token participates", "Only the screen color participates", "Only the course name participates"]
+      },
+      {
+        "concept": "query",
+        "fact": "Query represents the current information request.",
+        "distractors": ["Query represents the final answer", "Query represents the course schedule", "Query removes the input context"]
+      },
+      {
+        "concept": "key",
+        "fact": "Key represents information that can be matched.",
+        "distractors": ["Key is always the longest token", "Key is the learner password", "Key is unrelated to matching"]
+      },
+      {
+        "concept": "value",
+        "fact": "Value carries the content passed into the result.",
+        "distractors": ["Value only stores a page number", "Value discards all token content", "Value is the same as a course grade"]
+      },
+      {
+        "concept": "context",
+        "fact": "Context helps a token receive meaning from surrounding tokens.",
+        "distractors": ["Context always makes a token independent", "Context is only a visual decoration", "Context prevents any interpretation"]
+      },
+      {
+        "concept": "weighting",
+        "fact": "Attention does not make every token equally important.",
+        "distractors": ["Attention always gives identical weight", "Attention ignores relevance", "Attention uses only token length"]
+      },
+      {
+        "concept": "result",
+        "fact": "The result combines information from related tokens.",
+        "distractors": ["The result deletes all related information", "The result contains only the first token", "The result is chosen from the course title"]
+      },
+      {
+        "concept": "scope",
+        "fact": "The source is a simplified conceptual explanation, not a full implementation formula.",
+        "distractors": ["The source contains a complete production implementation", "The source proves every formula is correct", "The source is an official course grade"]
+      },
+      {
+        "concept": "relevance",
+        "fact": "Related tokens receive more useful information for interpreting context.",
+        "distractors": ["Unrelated tokens always determine the result", "Relevance means deleting the context", "Relevance is based only on screen position"]
+      }
+    ]
+  }
+]
