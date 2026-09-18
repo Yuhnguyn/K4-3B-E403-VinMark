@@ -1,6 +1,6 @@
 # VinMark — mockup CP2
 
-Mở `index.html` bằng trình duyệt để chạy fixture demo. Để chạy qua API local, từ thư mục gốc chạy `node server/server.js` rồi mở `http://127.0.0.1:3000/`.
+Mở `index.html` bằng trình duyệt để chạy fixture demo. Để viewer đọc slide thật từ VLearn, từ thư mục gốc chạy `node server/server.js` rồi mở `http://127.0.0.1:3000/`.
 
 ## Luồng demo
 
@@ -13,7 +13,7 @@ Mở `index.html` bằng trình duyệt để chạy fixture demo. Để chạy 
 
 ## Phạm vi mô phỏng
 
-- Giao diện tái hiện theo ảnh tham chiếu; slide là nội dung dựng cho demo, không phải bản sao toàn bộ tài liệu VLearn.
+- Giao diện tái hiện theo ảnh tham chiếu; Day 01 và Day 02 đọc slide thật từ PDF và metadata JSON qua server local. Các buổi chưa có data pack vẫn dùng nội dung fixture.
 - Buổi 1 có slide lịch sử AI dựng bằng SVG, attention và dự đoán token. Buổi 2 có problem statement/tự động hóa. Buổi 3 có RAG/prompt. Các buổi còn lại có tài liệu minh họa cơ bản.
 - Mã nguồn tham chiếu gồm course/lesson/material/page. Không chỉ mở một slide chung cho mọi mục.
 - Chat phản hồi bằng phần nhắc lại nội dung slide và ghi rõ chưa kết nối AI thật.
