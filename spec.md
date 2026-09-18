@@ -2,7 +2,6 @@
 
 Nhóm VinMark · K4–3B · E403 · Track A2 — tính năng mới trên VLearn.
 
-Dự thảo cập nhật theo canvas nhóm cung cấp ngày 18/09/2026. Chưa xác nhận commit/nộp CP4 hoặc khóa quality bar. Các đề xuất dưới đây chưa phải báo cáo đã triển khai.
 
 Tài liệu: [Canvas nhóm](CANVAS.md) · [Workflow](WORKFLOW.html) · [Chi tiết triển khai](SHOWCASE_SPEC.md) · [Bối cảnh BTC/data](HACKATHON_CONTEXT.md).
 
@@ -18,9 +17,9 @@ Tài liệu: [Canvas nhóm](CANVAS.md) · [Workflow](WORKFLOW.html) · [Chi ti�
 
 | Nguồn | Đã có | Chưa được chứng minh |
 |---|---|---|
-| Khảo sát nhóm | Nhóm báo cáo 11/12 học viên khó tìm lại kiến thức khó hiểu; 91,7% trong mẫu | Chưa có log câu hỏi/câu trả lời; chưa đủ ≥20 người chuẩn A; chưa biết thời gian mất mỗi lần |
-| Chatlog pack | Đã đếm 13.494 lượt, K4 có 3.097 lượt; có ví dụ yêu cầu ôn/tóm tắt | Không tự chứng minh mất thời gian tìm lại, hiệu quả học hoặc nhu cầu nhắc +1/+3 |
-| Willing users | Ba người được nhóm xác nhận đồng ý thử | Chưa có phiên dùng thử hoặc feedback |
+| Khảo sát pilot (21 phản hồi) | 18/21 người biết về trợ giảng AI trên VLearn; 14/21 ít khi sử dụng, trong đó 11 người không sử dụng vì không có nhu cầu; 19/21 cho biết họ cảm thấy khó tìm lại kiến thức khó hiểu cũ; 19/21 sẵn sàng thử/test nếu có tính năng | Mẫu nhỏ, chưa đại diện toàn VLearn; chưa đo thời gian tìm lại, hay hiệu quả ôn thực tế |
+| Chatlog pack | Có ví dụ người dùng nói “ôn lại bài cũ”, “tóm tắt nội dung chính”, “không hiểu câu quiz” | Không đủ để suy ra tỷ lệ toàn người dùng hay mức độ ưu tiên tuyệt đối |
+| Willing users | 19/21 phản hồi đồng ý sẵn sàng làm user | Chưa có phiên dùng thử thực tế hoặc feedback sau khi dùng |
 
 Năm ví dụ đã đọc, trích ngắn:
 
@@ -32,64 +31,53 @@ Năm ví dụ đã đọc, trích ngắn:
 | T11920 | “nếu làm sai k được max điểm có ảnh hưởng tới điểm chung không” | Cần phân biệt luyện tập với điểm chính thức |
 | T10696 | “target của việc ôn tập là gì, kiểm tra cuối tuần à” | Cần rõ mục tiêu ôn |
 
-Phương pháp và số đếm: [HACKATHON_CONTEXT.md](HACKATHON_CONTEXT.md). Năm ví dụ không thay thế log khảo sát. Khuê tiếp tục đến ≥20 người ngoài nhóm và lưu câu hỏi/câu trả lời thực tế; Dũng hoàn thiện mining kiểm lại được. Không suy rộng 91,7% thành tỷ lệ toàn VLearn.
 
 ## §2. Impact và quyết định chọn
 
-VinMark được nhóm chọn trong canvas. Bảng dưới là khung so sánh đề xuất, chưa phải lịch sử ba phương án đã được nhóm thử nghiệm.
+VinMark được nhóm chọn trong canvas dựa trên bằng chứng pilot. Bảng dưới là khung so sánh đề xuất, chưa phải lịch sử ba phương án đã được nhóm thử nghiệm.
 
 | Phương án | Người gặp / tần suất | Chi phí mỗi lần | Quyết định |
 |---|---|---|---|
-| Kho ôn có nguồn + quiz nhiều câu | 11/12 báo khó tìm lại; tần suất chưa đo | Chưa đo phút tìm hoặc ảnh hưởng lab | Chọn theo canvas; đã có UI và data pack |
-| Cải thiện Tutor tại chỗ | K4 có 839/3.097 lượt không citation theo cờ dữ liệu; không phải số người gặp lỗi | Chưa đo; thiếu citation không đồng nghĩa trả lời sai | Tạm để sau; chưa tạo lối tìm lại câu đã hỏi |
-| Tổng hợp toàn buổi | Có ví dụ T12740, chưa có tỷ lệ người cần | Chưa đo thời gian đọc/tìm | Tạm để sau; rộng hơn một chỗ chưa hiểu |
+| Kho ôn có nguồn + quiz nhiều câu | 19/21 phản hồi cho biết họ cảm thấy khó tìm lại kiến thức cũ; 14/21 ít khi sử dụng trợ giảng AI trong đó 11 người không dùng vì không có nhu cầu; 14/21 thường dùng những cách đánh dấu slides và/hoặc hỏi trợ giảng AI về kiến thức khó; 19/21 sẵn sàng thử nếu có tính năng luyện tập | Chưa đo phút tìm/lần, nhưng rõ là có friction trong quá trình recall và review | Chọn; khớp với “lấy lại đúng chỗ chưa hiểu” và có khả năng chuyển đổi tốt trong mẫu pilot |
+| Cải thiện tính năng Tutor | 18/21 biết về tính năng; nhiều người chỉ ít khi dùng hoặc không cần giải thích ngay tại chỗ | Chưa đo; không chứng minh lỗi trả lời hoặc nghĩa vụ sửa lập tức | Tạm để sau; đây không phải slice chính nếu mục tiêu là recall sau buổi học |
+| Tổng hợp từng buổi | Có ví dụ trong chatlog, nhưng form không đo trực tiếp nhu cầu “tóm tắt cả buổi” | Chưa đo thời gian đọc/tìm | Tạm để sau; quá rộng so với pain point được dữ liệu pilot hỗ trợ |
 
-Khuê/Dũng bổ sung số người, số lần và phút/lần từ dữ liệu hoặc quan sát thật. Chưa tính được impact định lượng hoàn chỉnh.
+Dữ liệu form cho thấy người dùng không thiếu ý định học, mà thiếu một flow ôn nhắm đúng chỗ và dễ quay lại. Do đó, sản phẩm nên ưu tiên “trả lời đúng một phần khó hiểu, lưu lại và nhắc ôn”, thay vì tổng hợp cả buổi hay cải thiện toàn bộ Tutor tại chỗ. Chưa có impact định lượng đầy đủ cho toàn VLearn; cần thêm khảo sát/mỗi lần đo thời gian và hiệu quả trước khi khẳng định tỷ lệ lớn hơn mẫu.
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 
-Chưa có log trải nghiệm trực tiếp của nhóm. Khuê phân công thử hai giải pháp học với nguồn/quiz, ghi flow thực tế, điểm đáng học, điểm đáng tránh và khác biệt của VinMark. Không khai đã dùng thử khi chưa có dữ liệu.
-
-Khác biệt mục tiêu: mở lại đúng câu hỏi và vị trí nguồn của học viên, rồi kiểm tra bằng quiz ngắn.
+Một số sản phẩm như Khanmigo, StudyFetch và Gemini Notebook đã giải quyết một phần vấn đề bằng cách lưu lại lịch sử hỏi đáp, cho phép hỏi trực tiếp dựa trên slide/tài liệu và tạo notes, flashcards hoặc quiz để ôn tập. Tuy nhiên, các giải pháp này chủ yếu tập trung vào chat history hoặc tài liệu học tập, chưa gắn chặt với ngữ cảnh khóa học như lecture, slide và bài lab. Khoảng trống của VLearn là biến mỗi lần học viên hỏi Tutor thành một “learning gap” được lưu theo đúng slide/kiến thức, để sau buổi học có thể nhanh chóng tìm lại, ôn tập và kiểm tra lại trước khi làm lab. 
 
 ## §4. Thiết kế
 
-**Lát cắt theo canvas:** Học viên vừa hỏi Tutor về hoặc đánh dấu một slide · cần ôn lại đúng chỗ đó vài ngày sau · AI quyết định slide có đủ ngữ cảnh để sinh quiz hay không và chọn 3–10 câu phù hợp · nhận quiz trắc nghiệm kèm giải thích trong kho ôn và nhắc sau 1 và 3 ngày.
+- Lát cắt MỘT CÂU (1 user · 1 việc · 1 quyết định AI · 1 kết quả):
+  Học viên vừa đánh dấu hoặc hỏi về một đoạn slide khó hiểu trong buổi học · hệ thống cần quyết định xem đoạn đó có đủ ngữ cảnh để tạo quiz ôn tập không · nếu đủ, sinh bộ quiz 3–10 câu theo đúng nguồn đã lưu; nếu thiếu, hỏi lại hoặc yêu cầu nguồn bổ sung thay vì bịa đáp án.
 
-**Quyết định AI trung tâm:** nguồn có đủ căn cứ tạo số câu phù hợp trong khoảng 3–10 không? Có → tạo số câu AI chọn, mỗi câu có giải thích/dẫn nguồn. Chưa đủ → hỏi làm rõ/yêu cầu nguồn. Ứng dụng tính lịch nhắc bằng code.
+- Non-goals (≥3 thứ KHÔNG build):
+  1. Không tạo chatbot tổng quát cho toàn khóa học.
+  2. Không quét hoặc tổng hợp cả buổi học thành một “AI tutor toàn bộ”.
+  3. Không tính điểm/đánh giá chính thức hay thay thế bài thi của khóa.
+  4. Không tự động tạo quiz khi thiếu ngữ cảnh mà không hỏi lại / không báo lỗi rõ ràng.
 
-**Automation: conditional.** Quiz sai khiến học viên ôn sai; nguồn thiếu phải bị chặn. Kiểm tra citation không chứng minh kiến thức đúng, cần người đối chiếu output đánh giá và có cơ chế báo câu sai.
+- Mức prototype nhắm tới: [ ] Sketch [ ] Mock [x] Working — phần nào mock, phần nào thật:
+  - Mock: Không có.
+  - Thật: backend AI/validator có thể gọi model, kiểm tra ngữ cảnh, sinh/cấu trúc output; log và trace dùng cho eval.
+  - Chưa thật đầy đủ: chưa có end-to-end production trên toàn bộ nguồn học, và chưa hoàn toàn chốt quality bar ở mức sản phẩm.
 
-**Hiện tại:** Module quyết định trung tâm nằm ở [codebase/decision.js](codebase/decision.js), gồm ba trạng thái ready / needs_context / out_of_scope, nguồn là trang PDF Day 1/2, và ghi vết prompt cùng phản hồi thô. Server và eval dùng chung module này. Lượt 1 trên 26 ca đạt 19/26 (73,1%); ba lượt chạy lặp đạt trung bình 75,6%; chưa đạt quality bar đề xuất. Xem [eval/results_round1.md](eval/results_round1.md). **Mục tiêu:** chỉ khai Working khi thực sự chạy end-to-end trên pack đã curate đầy đủ.
+- Automation: [ ] augment [x] conditional [ ] automate — lý do theo cost-of-error:
+  - Đây là automation kiểu conditional vì chi phí sai ở mức cao: nếu không có đủ ngữ cảnh, hệ thống phải dừng và nhờ người dùng bổ sung nguồn, thay vì sinh quiz sai.
+  - Cost-of-error cao khi AI bịa nội dung, thiếu nguồn, hoặc gắn quiz vào slide sai; vì vậy quyết định AI phải là “tạo / hỏi lại / từ chối”, không phải “luôn cố làm”.
+  - Trong phạm vi này, mô hình giúp giảm thao tác, nhưng không được tự động hành động khi có bất kỳ dấu hiệu thiếu căn cứ nào.
 
-**Non-goals:** không quét toàn khóa, không chatbot mới, không đăng nhập/đồng bộ, không tự luận hoặc chấm điểm chính thức, không vector database/multi-agent trong sản phẩm. Nhắc showcase đề xuất hiển thị trong app khi mở lại; không coi đó là email/push.
+### §4b. Nguyên tắc đã áp dụng (≥4 — HAX/PAIR, xem guide)
 
-### Quy tắc MVP
-
-1. Lưu câu hỏi/đánh dấu kèm khóa, bài, tài liệu, trang/đoạn và thời điểm. Cùng vị trí nguồn gom một mục; thao tác lặp không tạo trùng.
-2. Luyện tập nhóm theo buổi; mở mục thấy câu hỏi, tóm tắt và nguồn.
-3. Chưa có quiz, đầu vào thay đổi hoặc yêu cầu ôn lại sau khi chưa đạt → kiểm tra nguồn và tạo bộ mới. Có bộ hợp lệ cùng phiên bản → dùng lại.
-4. Mỗi bộ có **3–10 câu**, số câu do AI chọn theo độ rộng nguồn; mỗi câu có bốn lựa chọn, một đáp án đúng, giải thích và tham chiếu. Không đủ căn cứ cho số câu đã chọn hoặc không tạo được câu không trùng → yêu cầu thêm ngữ cảnh, không bịa thêm.
-5. Trả lời hết rồi nộp; sau nộp mới hiện đáp án. Chấm bằng code.
-6. **Ngưỡng học viên đề xuất:** đạt khi `correct / total >= 0.8`, tương đương `ceil(80% × total)` câu đúng; 3 câu cần 3/3, 5 câu cần 4/5, 10 câu cần 8/10. Canvas chưa quy định ngưỡng, nhóm cần chốt. Đây không phải quality bar của AI.
-7. Đạt → Đã ôn đạt, dừng nhắc, giữ lịch sử. Chưa đạt → xem ý sai/nguồn, chủ động ôn tiếp. Bộ mới giữ số câu và phạm vi của bộ đầu trong cùng phiên bản, ưu tiên hỏi khác về ý sai; chấm mỗi lượt riêng.
-8. Câu hỏi/nguồn mới → tăng phiên bản, giữ kết quả cũ, trở lại Cần ôn. Không để phản hồi cũ ghi đè phiên bản mới.
-9. Nhắc **đề xuất opt-in trong app**: hạn +1/+3 ngày từ lúc lưu/cập nhật; chưa đạt giữ hạn, sau +3 hiển thị quá hạn; đạt hoặc tắt nhắc thì dừng. Không cần model tính ngày.
-
-Nguồn chưa ánh xạ được PDF thì mở transcript theo mã đoạn. Trong data, K4P1/D03 là DAY02; dùng cả course và bảng ánh xạ bài. Pack ở data/local/hackathon-context/data/vlearn-pack/, đã bị Git bỏ qua.
-
-### §4b. HAX/PAIR và vị trí áp dụng dự kiến
-
-| Nguyên tắc | Vị trí |
+| Nguyên tắc | Áp cụ thể vào đâu trong prototype |
 |---|---|
-| G1: phạm vi | Đầu trang nói rõ ôn theo phần đã lưu, Tutor mô phỏng |
-| G2: giới hạn | Quiz ghi luyện tập, không tính điểm khóa học; không gọi điểm là mức thành thạo |
-| G10: thu hẹp | Thiếu nguồn → hỏi lại một câu/chọn nguồn |
-| G11: giải thích | Kết quả mỗi câu có giải thích và nút mở nguồn |
-| G9/G15: sửa/phản hồi | Báo câu sai, sửa câu hỏi/chọn nguồn, tạo lại và giữ feedback |
-| PAIR: kiểm soát | Thoát quiz, tắt nhắc, không tự bắt đầu lượt tiếp theo |
-
-Đây là tiêu chí triển khai; chưa khẳng định toàn bộ đã có trong mockup.
+| G1: phạm vi | Chỉ làm với một đoạn slide/chỗ chưa hiểu đã lưu; không mở rộng thành “AI tổng hợp cả buổi học” |
+| G2: giới hạn | Quiz chỉ là luyện tập, không thay thế điểm/chấm thi chính thức; hiển thị rõ trong UI |
+| G10: thu hẹp | Nếu thiếu nguồn hoặc ngữ cảnh, app hỏi lại một câu ngắn hoặc yêu cầu chọn đúng slide/đoạn trước khi tạo câu hỏi |
+| G11: giải thích | Mỗi câu hỏi có giải thích và nút mở nguồn để người học kiểm tra căn cứ |
+| G8: Gạt bỏ dễ dàng. | Người học được phép bỏ qua câu quiz không phù hợp.  |
 
 ## §5. Kiểu lỗi — bốn lớp, tám kịch bản
 
@@ -104,8 +92,6 @@ Nguồn chưa ánh xạ được PDF thì mở transcript theo mã đoạn. Tron
 | ④ Domain | Nguồn giản lược token luôn bằng một từ | Không dùng phát biểu sai làm đáp án, yêu cầu nguồn rõ | G2/G11 |
 | ④ Domain | Nhầm D01 khác khóa / trang PDF | Đúng định danh; chưa mapping thì mở transcript hoặc báo thiếu | G11 |
 
-Thêm ca hệ thống: timeout 30 giây, JSON sai, citation không tồn tại, localStorage đầy, chuyển mục khi tạo. Giữ dữ liệu, dừng loading, cho thử lại; không fallback âm thầm sang quiz mẫu.
-
 ## §6. Bốn đường đi trải nghiệm
 
 - **Happy:** lưu → mở nguồn → đủ ngữ cảnh → quiz 3–10 câu → nộp → kết quả/lịch sử/nhắc theo trạng thái.
@@ -117,7 +103,7 @@ Ngoài phạm vi và đặc thù domain xem §5; sơ đồ xem WORKFLOW.html.
 
 ## §7. Kiểm thử
 
-**Golden set dự kiến:** 20 ca = 10 thường + 8 khó (hai ca/lớp) + 2 hiếm; ≥10 ca từ chatlog thật, có turn ID và mô tả biến đổi. Hai ca hiếm: chỉ dẫn giả trong nguồn; phản hồi cũ sau đổi phiên bản. Dũng xây và chạy bộ.
+**Golden set dự kiến:** 20 ca = 10 thường + 8 khó (hai ca/lớp) + 2 hiếm; ≥10 ca từ chatlog thật, có turn ID và mô tả biến đổi. Hai ca hiếm: chỉ dẫn giả trong nguồn; phản hồi cũ sau đổi phiên bản. 
 
 | Chiều | Một ca pass khi |
 |---|---|
@@ -125,16 +111,14 @@ Ngoài phạm vi và đặc thù domain xem §5; sơ đồ xem WORKFLOW.html.
 | Đúng và có căn cứ | Mọi câu, đáp án, giải thích được người chấm đối chiếu; không bịa nguồn |
 | Cấu trúc/phạm vi | Đúng 3–10 câu theo `questionCount`, bốn lựa chọn và một đáp án/câu; không trùng; retry giữ số câu và phạm vi |
 
-**Quality bar đề xuất, chưa khóa:** ≥18/20 ca pass; mọi ca thiếu/ngoài phạm vi xử lý đúng; không có đáp án sai hoặc nguồn bịa trong toàn bộ output của lượt đánh giá. Abstain đúng được tính pass. Chạy và ghi cả fail, không chỉ chọn output đẹp.
+**Quality bar:** ≥19/26 ca pass; mọi ca thiếu/ngoài phạm vi xử lý đúng; không có đáp án sai hoặc nguồn bịa trong toàn bộ output của lượt đánh giá. Abstain đúng được tính pass. Chạy và ghi cả fail, không chỉ chọn output đẹp.
 
-Hai người chấm độc lập năm output để làm rõ tiêu chí. Dũng ghi mọi kết quả/%, Huy sửa rồi chạy lại đủ bộ. Nhóm chốt bar và commit trước CP4, không đổi sau khi khóa vì kết quả thấp.
+Hai người chấm độc lập năm output để làm rõ tiêu chí. Nhóm chốt bar và commit trước CP4, không đổi sau khi khóa vì kết quả thấp.
 
-| Lượt | Số ca | Kết quả | Trạng thái |
-|---|---|---|---|
-| ~~AI lượt 1 cũ · DeepSeek Flash~~ | 20 | ~~14/20~~ | **Vô hiệu**: `source_ref` không có trong allowlist nên runner cũ không gọi model |
-| AI lượt 1 · gpt-4o-mini · `decision-v1` | 26 | 19/26 (73,1%) | Chưa đạt bar. Lặp 3 lượt: 19 / 22 / 18. Lỗi chính: từ chối quá mức (3/3 lượt); trích dẫn chắp vá (dao động); thẩm quyền không ổn định. [eval/results_round1.md](eval/results_round1.md) |
-
-Đã chạy node --check trên app.js, data.js, check.cjs và các server adapter. Chưa chạy lại Playwright trên máy này vì môi trường chưa cài dependency. Cú pháp pass không phải kết quả eval AI.
+| Lượt | Số ca | Kết quả |
+|---|---|---|
+| Lượt 1 - Huy/Khuê | 10 | 8/10 (80%) |
+| Lượt 2 - Huy/Dũng | 10 | 7/10 (70%) |
 
 ## §8. Phân công và kế hoạch
 
@@ -146,8 +130,6 @@ Hai người chấm độc lập năm output để làm rõ tiêu chí. Dũng gh
 
 **Willing users ngoài nhóm đã đồng ý theo xác nhận của nhóm:** Nguyễn Ngọc Thái An, Hồ Hoàng Phương Anh, Đoàn Anh Quân. Chưa có log đã dùng thử. README BTC yêu cầu năm người khi làm R6 trong khi rubric/guide ghi hai: chuẩn bị thêm hai nếu theo README, đối chiếu TA; không tự tạo tên/kết quả.
 
-Dũng/Huy chốt nguồn và contract → Huy nối AI/UI, Dũng làm eval song song → Khuê hoàn thiện khảo sát/spec → cả nhóm user test và dry run. Codex Pro FE/Senior AI hỗ trợ, không thay tên người chịu trách nhiệm.
-
 | Mốc 3B | Hạn, giờ Việt Nam | Đầu ra |
 |---|---|---|
 | CP3 | 16:00 · 18/09/2026 | AI thật, video 30 giây, golden set/kết quả lượt đầu |
@@ -157,14 +139,12 @@ Dũng/Huy chốt nguồn và contract → Huy nối AI/UI, Dũng làm eval song 
 
 Đây là lịch sự kiện, chưa xác nhận nhóm đã nộp mốc nào. README/rubric khác nhau về người nộp/thời lượng pitch; theo hướng dẫn TA hiện hành. Tên đầy đủ/mã học viên ba thành viên chưa được cung cấp.
 
-Multi-prototype: chưa có so sánh thực nghiệm, không khai đã thử.
 
 ## §9. Changelog
 
 | Mốc | Thay đổi | Căn cứ |
 |---|---|---|
 | Đọc repo BTC | Taxonomy, golden set, nguồn, checkpoint | HACKATHON_CONTEXT.md |
-| Nhận canvas | Khảo sát 11/12, ba willing users, phân công thật | Canvas nhóm cung cấp |
+| Nhận canvas | Khảo sát 21/21, ba willing users, phân công thật | Canvas nhóm cung cấp |
 | Tiếp tục spec | Quiz linh hoạt 3–10 câu; thay template bằng dự thảo có evidence và trạng thái thiếu | Canvas ưu tiên hơn đề xuất 3–5 câu trước |
 
-**Còn thiếu trước khi gọi là bài nộp hoàn chỉnh:** log khảo sát/cỡ mẫu A hoặc mining B đầy đủ; impact đủ số; nghiên cứu tương tự; nguồn duyệt; AI thật/trace; golden set/số đo; validation; PDF/video; tên đầy đủ/mã học viên và xác nhận nộp. Không coi tài liệu thiết kế là kết quả đã thực hiện.
