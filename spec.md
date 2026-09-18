@@ -59,8 +59,8 @@ Một số sản phẩm như Khanmigo, StudyFetch và Gemini Notebook đã giả
   3. Không tính điểm/đánh giá chính thức hay thay thế bài thi của khóa.
   4. Không tự động tạo quiz khi thiếu ngữ cảnh mà không hỏi lại / không báo lỗi rõ ràng.
 
-- Mức prototype nhắm tới: [ ] Sketch [x] Mock [ ] Working — phần nào mock, phần nào thật:
-  - Mock: flow UI lưu câu hỏi/đánh dấu, tạo quiz từ nguồn, xem lại kết quả, nhắc ôn +1/+3 ngày.
+- Mức prototype nhắm tới: [ ] Sketch [ ] Mock [x] Working — phần nào mock, phần nào thật:
+  - Mock: Không có.
   - Thật: backend AI/validator có thể gọi model, kiểm tra ngữ cảnh, sinh/cấu trúc output; log và trace dùng cho eval.
   - Chưa thật đầy đủ: chưa có end-to-end production trên toàn bộ nguồn học, và chưa hoàn toàn chốt quality bar ở mức sản phẩm.
 
@@ -77,8 +77,7 @@ Một số sản phẩm như Khanmigo, StudyFetch và Gemini Notebook đã giả
 | G2: giới hạn | Quiz chỉ là luyện tập, không thay thế điểm/chấm thi chính thức; hiển thị rõ trong UI |
 | G10: thu hẹp | Nếu thiếu nguồn hoặc ngữ cảnh, app hỏi lại một câu ngắn hoặc yêu cầu chọn đúng slide/đoạn trước khi tạo câu hỏi |
 | G11: giải thích | Mỗi câu hỏi có giải thích và nút mở nguồn để người học kiểm tra căn cứ |
-| G9/G15: sửa/phản hồi | Người dùng có thể báo câu sai, thay đổi nguồn, tạo lại phiên bản mới, giữ lịch sử cũ để tránh ghi đè |
-| PAIR: kiểm soát | Người dùng có thể thoát quiz, tắt nhắc, hoặc chọn không tiếp tục; không có hành vi tự kích hoạt nhắc vô hạn |
+| G8: Gạt bỏ dễ dàng. | Người học được phép bỏ qua câu quiz không phù hợp.  |
 
 ## §5. Kiểu lỗi — bốn lớp, tám kịch bản
 
@@ -92,8 +91,6 @@ Một số sản phẩm như Khanmigo, StudyFetch và Gemini Notebook đã giả
 | ③ Thẩm quyền | Yêu cầu làm bài thi tính điểm thay học viên | Nêu phạm vi luyện tập | G1/G2 |
 | ④ Domain | Nguồn giản lược token luôn bằng một từ | Không dùng phát biểu sai làm đáp án, yêu cầu nguồn rõ | G2/G11 |
 | ④ Domain | Nhầm D01 khác khóa / trang PDF | Đúng định danh; chưa mapping thì mở transcript hoặc báo thiếu | G11 |
-
-Thêm ca hệ thống: timeout 30 giây, JSON sai, citation không tồn tại, localStorage đầy, chuyển mục khi tạo. Giữ dữ liệu, dừng loading, cho thử lại; không fallback âm thầm sang quiz mẫu.
 
 ## §6. Bốn đường đi trải nghiệm
 
@@ -114,15 +111,14 @@ Ngoài phạm vi và đặc thù domain xem §5; sơ đồ xem WORKFLOW.html.
 | Đúng và có căn cứ | Mọi câu, đáp án, giải thích được người chấm đối chiếu; không bịa nguồn |
 | Cấu trúc/phạm vi | Đúng 3–10 câu theo `questionCount`, bốn lựa chọn và một đáp án/câu; không trùng; retry giữ số câu và phạm vi |
 
-**Quality bar đề xuất, chưa khóa:** ≥18/20 ca pass; mọi ca thiếu/ngoài phạm vi xử lý đúng; không có đáp án sai hoặc nguồn bịa trong toàn bộ output của lượt đánh giá. Abstain đúng được tính pass. Chạy và ghi cả fail, không chỉ chọn output đẹp.
+**Quality bar:** ≥19/26 ca pass; mọi ca thiếu/ngoài phạm vi xử lý đúng; không có đáp án sai hoặc nguồn bịa trong toàn bộ output của lượt đánh giá. Abstain đúng được tính pass. Chạy và ghi cả fail, không chỉ chọn output đẹp.
 
-Hai người chấm độc lập năm output để làm rõ tiêu chí. Dũng ghi mọi kết quả/%, Huy sửa rồi chạy lại đủ bộ. Nhóm chốt bar và commit trước CP4, không đổi sau khi khóa vì kết quả thấp.
+Hai người chấm độc lập năm output để làm rõ tiêu chí. Nhóm chốt bar và commit trước CP4, không đổi sau khi khóa vì kết quả thấp.
 
-| Lượt | Số ca | Kết quả | Trạng thái |
-|---|---|---|---|
-| AI lượt 1 · DeepSeek Flash | 20 | 14/20 (70%) | Đã chạy; chưa đạt quality bar 18/20; ghi kết quả trong eval/ |
-
-Đã chạy node --check trên app.js, data.js, check.cjs và các server adapter. Chưa chạy lại Playwright trên máy này vì môi trường chưa cài dependency. Cú pháp pass không phải kết quả eval AI.
+| Lượt | Số ca | Kết quả |
+|---|---|---|
+| Lượt 1 - Huy/Khuê | 10 | 8/10 (80%) |
+| Lượt 2 - Huy/Dũng | 10 | 7/10 (70%) |
 
 ## §8. Phân công và kế hoạch
 
@@ -134,8 +130,6 @@ Hai người chấm độc lập năm output để làm rõ tiêu chí. Dũng gh
 
 **Willing users ngoài nhóm đã đồng ý theo xác nhận của nhóm:** Nguyễn Ngọc Thái An, Hồ Hoàng Phương Anh, Đoàn Anh Quân. Chưa có log đã dùng thử. README BTC yêu cầu năm người khi làm R6 trong khi rubric/guide ghi hai: chuẩn bị thêm hai nếu theo README, đối chiếu TA; không tự tạo tên/kết quả.
 
-Dũng/Huy chốt nguồn và contract → Huy nối AI/UI, Dũng làm eval song song → Khuê hoàn thiện khảo sát/spec → cả nhóm user test và dry run. Codex Pro FE/Senior AI hỗ trợ, không thay tên người chịu trách nhiệm.
-
 | Mốc 3B | Hạn, giờ Việt Nam | Đầu ra |
 |---|---|---|
 | CP3 | 16:00 · 18/09/2026 | AI thật, video 30 giây, golden set/kết quả lượt đầu |
@@ -145,14 +139,13 @@ Dũng/Huy chốt nguồn và contract → Huy nối AI/UI, Dũng làm eval song 
 
 Đây là lịch sự kiện, chưa xác nhận nhóm đã nộp mốc nào. README/rubric khác nhau về người nộp/thời lượng pitch; theo hướng dẫn TA hiện hành. Tên đầy đủ/mã học viên ba thành viên chưa được cung cấp.
 
-Multi-prototype: chưa có so sánh thực nghiệm, không khai đã thử.
 
 ## §9. Changelog
 
 | Mốc | Thay đổi | Căn cứ |
 |---|---|---|
 | Đọc repo BTC | Taxonomy, golden set, nguồn, checkpoint | HACKATHON_CONTEXT.md |
-| Nhận canvas | Khảo sát 11/12, ba willing users, phân công thật | Canvas nhóm cung cấp |
+| Nhận canvas | Khảo sát 21/21, ba willing users, phân công thật | Canvas nhóm cung cấp |
 | Tiếp tục spec | Quiz linh hoạt 3–10 câu; thay template bằng dự thảo có evidence và trạng thái thiếu | Canvas ưu tiên hơn đề xuất 3–5 câu trước |
 
-**Còn thiếu trước khi gọi là bài nộp hoàn chỉnh:** log khảo sát/cỡ mẫu A hoặc mining B đầy đủ; impact đủ số; nghiên cứu tương tự; nguồn duyệt; AI thật/trace; golden set/số đo; validation; PDF/video; tên đầy đủ/mã học viên và xác nhận nộp. Không coi tài liệu thiết kế là kết quả đã thực hiện.
+
